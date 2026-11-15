@@ -1,0 +1,21 @@
+{
+  "name": "avcon Technologies",
+  "short_name": "avcon",
+  "description": "Egocentric, fully annotated training data of skilled human work for robotics and physical AI.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0E120F",
+  "theme_color": "#0E120F",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

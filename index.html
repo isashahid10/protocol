@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>avcon Technologies: Egocentric Training Data for Robotics</title>
+    <meta
+      name="description"
+      content="avcon Technologies collects and annotates egocentric (first person) data of skilled human work, from drone repair to manufacturing lines to custom tasks, to train robots and physical AI."
+    />
+    <link rel="canonical" href="https://avcontechnologies.com/" />
+    <meta name="theme-color" content="#0E120F" />
+    <meta name="color-scheme" content="dark light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="avcon Technologies" />
+    <meta property="og:title" content="avcon Technologies: Egocentric Training Data for Robotics" />
+    <meta
+      property="og:description"
+      content="First person video, hand pose, gaze and force from skilled people doing real work. Fully annotated, built to spec, ready to train robots."
+    />
+    <meta property="og:url" content="https://avcontechnologies.com/" />
+    <meta property="og:image" content="https://avcontechnologies.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="avcon Technologies. Tracked hand skeletons repairing a drone, with annotation labels." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <script>
+      /* Apply saved theme and JS flag before first paint to avoid a flash. */
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("avcon-theme");
+          if (t === "light" || t === "dark") d.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" src="assets/js/main.js"></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "avcon Technologies",
+        "url": "https://avcontechnologies.com/",
+        "logo": "https://avcontechnologies.com/favicon.svg",
+        "email": "outreach.pra@gmail.com",
+        "description": "avcon Technologies collects and annotates egocentric data of skilled human work to train robots and physical AI."
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="avcon Technologies home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path d="M16 3.5c7.4 0 12.5 4.9 12.5 12 0 7.6-5.6 13-12.8 13C8.4 28.5 3.5 23.3 3.5 16 3.5 8.6 8.8 3.5 16 3.5Z" />
+            <path d="M16.4 8.3c4.6 0 7.6 3.3 7.4 7.8-.2 4.6-3.6 7.6-8 7.4-4.3-.2-7.4-3.3-7.3-7.7.1-4.5 3.4-7.5 7.9-7.5Z" />
+            <path d="M15.8 12.6c2.1-.1 3.6 1.4 3.6 3.4 0 2.1-1.5 3.5-3.5 3.5s-3.4-1.5-3.4-3.5c0-1.9 1.3-3.3 3.3-3.4Z" />
+            <circle cx="16" cy="16" r="1.4" class="brand-dot" />
+          </svg>
+          <span class="brand-word">avcon</span>
+          <span class="brand-sub">Technologies</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <ul>
+            <li><a href="#rig">Rig</a></li>
+            <li><a href="#domains">Domains</a></li>
+            <li><a href="#annotation">Annotation</a></li>
+            <li><a href="#streams">Streams</a></li>
+            <li><a href="#uses">Uses</a></li>
+            <li><a href="#process">Process</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to light theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="8.5" />
+              <path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" class="fill" />
+            </svg>
+          </button>
+          <button class="btn btn-solid btn-sm" type="button" data-open-sample>
+            Request sample
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- HERO -->
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <canvas class="hero-canvas" data-hands aria-hidden="true"></canvas>
+        <div class="hero-grain" aria-hidden="true"></div>
+
+        <div class="container hero-inner">
+          <div class="hero-meta mono" aria-hidden="true">
+            <span><i class="live-dot"></i>Rec · <span data-clock>00:00:00 UTC</span></span>
+            <span>Frame <span data-frame>018,224</span></span>
+            <span>7 streams synced</span>
+          </div>
+
+          <div class="hero-copy">
+            <p class="eyebrow mono">Egocentric data collection</p>
+            <h1 id="hero-title" class="display">
+              Every skilled task, <em>first person.</em>
+            </h1>
+            <p class="lede">
+              avcon Technologies records skilled people doing real work through head mounted cameras and wearable
+              sensors, then annotates every frame so robots can learn it. From drone repair to assembly lines to
+              tasks nobody has filmed before.
+            </p>
+            <div class="hero-cta">
+              <button class="btn btn-solid" type="button" data-open-sample>
+                Request a sample
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+              </button>
+              <a class="btn btn-ghost" href="#domains">See what we capture</a>
+            </div>
+          </div>
+        </div>
+
+        <a class="scroll-cue mono" href="#context" aria-label="Scroll to content">
+          <span>Scroll</span>
+          <svg viewBox="0 0 16 28" aria-hidden="true" focusable="false"><path d="M8 2v22M2 18l6 6 6-6" /></svg>
+        </a>
+      </section>
+
+      <!-- TICKER -->
+      <div class="ticker mono" aria-hidden="true">
+        <div class="ticker-track">
+          <ul>
+            <li>EGO-214 · Drone repair · Rotor swap</li>
+            <li>EGO-187 · PCB rework · Connector seat</li>
+            <li>EGO-302 · Assembly line · Torque check</li>
+            <li>EGO-115 · Warehouse · Pick and pack</li>
+            <li>EGO-249 · Kitchen · Hot line prep</li>
+            <li>EGO-063 · Garment · Seam finishing</li>
+            <li>EGO-331 · Auto service · Harness routing</li>
+            <li>EGO-090 · Hotel · Bed making</li>
+            <li>QA · 1,204 clips verified today</li>
+            <li>ANN · 2.1M hand keypoints labelled</li>
+          </ul>
+          <ul>
+            <li>EGO-214 · Drone repair · Rotor swap</li>
+            <li>EGO-187 · PCB rework · Connector seat</li>
+            <li>EGO-302 · Assembly line · Torque check</li>
+            <li>EGO-115 · Warehouse · Pick and pack</li>
+            <li>EGO-249 · Kitchen · Hot line prep</li>
+            <li>EGO-063 · Garment · Seam finishing</li>
+            <li>EGO-331 · Auto service · Harness routing</li>
+            <li>EGO-090 · Hotel · Bed making</li>
+            <li>QA · 1,204 clips verified today</li>
+            <li>ANN · 2.1M hand keypoints labelled</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CONTEXT -->
+      <section class="section" id="context" aria-labelledby="context-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>01</span> Context</p>
+          <div class="split-main">
+            <h2 id="context-title" class="h2" data-reveal>
+              Robots cannot learn a job they have <em>never seen done.</em>
+            </h2>
+            <div class="two-col" data-reveal>
+              <p>
+                Internet video shows the end result. It rarely shows the grip on a screwdriver, the angle of a
+                connector or the force it takes to seat a bearing. That is exactly the data manipulation models are
+                starved of.
+              </p>
+              <p>
+                We capture it at the source. Skilled operators wear our rigs while they do their real jobs, in real
+                workshops and on real production lines. Every stream is synced, every frame is annotated, and every
+                dataset is built to your spec.
+              </p>
+            </div>
+
+            <dl class="facts" data-reveal>
+              <div>
+                <dt class="mono">Streams per operator</dt>
+                <dd>7</dd>
+              </div>
+              <div>
+                <dt class="mono">Time sync</dt>
+                <dd>±1<span>ms</span></dd>
+              </div>
+              <div>
+                <dt class="mono">Data annotated</dt>
+                <dd>100<span>%</span></dd>
+              </div>
+              <div>
+                <dt class="mono">Task domains</dt>
+                <dd>12<span>+</span></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIG -->
+      <section class="section section-rule" id="rig" aria-labelledby="rig-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>02</span> Capture rig</p>
+            <div class="split-main">
+              <h2 id="rig-title" class="h2" data-reveal>One operator. <em>Seven streams.</em></h2>
+              <p class="section-intro" data-reveal>
+                Our wearable rig sees what the operator sees, tracks where they look, feels how hard they grip and
+                records how their body moves, while fixed cameras watch the whole workcell. Select a sensor to see
+                what it records.
+              </p>
+            </div>
+          </div>
+
+          <div class="station" data-station>
+            <figure class="station-figure" data-reveal>
+              <svg class="station-svg" viewBox="0 0 640 680" role="img" aria-labelledby="rig-svg-title">
+                <title id="rig-svg-title">
+                  Line drawing of an operator at a workbench repairing a drone, wearing a head mounted stereo camera,
+                  depth sensor, eye tracker, wrist cameras, tactile gloves, motion sensors, a microphone and a belt
+                  recorder, watched by two fixed workcell cameras.
+                </title>
+
+                <!-- 8 exocentric cameras -->
+                <g class="st-part" data-part="8">
+                  <path d="M42 30V70M598 30V70" />
+                  <rect x="22" y="70" width="40" height="24" rx="2" />
+                  <rect x="62" y="76" width="8" height="12" rx="1" />
+                  <rect x="578" y="70" width="40" height="24" rx="2" />
+                  <rect x="570" y="76" width="8" height="12" rx="1" />
+                  <path class="st-dash st-fov" d="M72 84L210 488M72 84L430 488M568 84L430 488M568 84L210 488" />
+                </g>
+
+                <!-- body -->
+                <g class="st-body">
+                  <ellipse cx="320" cy="168" rx="44" ry="54" />
+                  <path class="st-faint-stroke" d="M310 200h20" />
+                  <path d="M306 220L304 244M334 220L336 244" />
+                  <path d="M304 244C260 248 222 258 212 290M336 244C380 248 418 258 428 290" />
+                  <path class="st-faint-stroke" d="M214 300C212 360 222 420 236 470M426 300C428 360 418 420 404 470" />
+                  <path class="st-arm" d="M214 290L188 400L262 482M426 290L452 400L378 482" />
+                  <circle class="st-joint" cx="214" cy="290" r="4" />
+                  <circle class="st-joint" cx="188" cy="400" r="4" />
+                  <circle class="st-joint" cx="426" cy="290" r="4" />
+                  <circle class="st-joint" cx="452" cy="400" r="4" />
+                </g>
+
+                <!-- bench and drone -->
+                <g class="st-bench">
+                  <path class="st-faint-stroke" d="M74 540V662M566 540V662M112 540V630M528 540V630" />
+                  <path class="st-top" d="M110 490H530L590 540H50Z" />
+                  <path d="M296 507L344 527M344 507L296 527" />
+                  <ellipse cx="292" cy="505" rx="15" ry="5" />
+                  <ellipse cx="348" cy="505" rx="15" ry="5" />
+                  <ellipse cx="288" cy="530" rx="15" ry="5" />
+                  <ellipse cx="352" cy="530" rx="15" ry="5" />
+                  <rect class="st-fill" x="308" y="511" width="24" height="12" rx="3" />
+                </g>
+
+                <!-- 1 stereo egocentric camera -->
+                <g class="st-part" data-part="1">
+                  <path d="M276 152C278 104 362 104 364 152" />
+                  <rect class="st-fill" x="296" y="102" width="48" height="20" rx="3" />
+                  <circle cx="308" cy="112" r="4.5" />
+                  <circle cx="332" cy="112" r="4.5" />
+                </g>
+
+                <!-- 2 depth -->
+                <g class="st-part" data-part="2">
+                  <rect class="st-fill" x="356" y="124" width="18" height="28" rx="3" />
+                  <circle cx="365" cy="132" r="2.5" />
+                  <path d="M361 142h8" />
+                </g>
+
+                <!-- 3 eye tracking -->
+                <g class="st-part" data-part="3">
+                  <ellipse cx="304" cy="168" rx="6" ry="3" />
+                  <ellipse cx="336" cy="168" rx="6" ry="3" />
+                  <path d="M282 152C284 164 290 172 296 176M358 152C356 164 350 172 344 176" />
+                  <path class="st-dash st-gaze" d="M304 172L316 512M336 172L324 512" />
+                </g>
+
+                <!-- 6 IMU suit -->
+                <g class="st-part" data-part="6">
+                  <rect class="st-fill" x="194" y="338" width="14" height="12" rx="2" transform="rotate(-14 201 344)" />
+                  <rect class="st-fill" x="432" y="338" width="14" height="12" rx="2" transform="rotate(14 439 344)" />
+                  <rect class="st-fill" x="218" y="434" width="14" height="12" rx="2" transform="rotate(48 225 440)" />
+                  <rect class="st-fill" x="408" y="434" width="14" height="12" rx="2" transform="rotate(-48 415 440)" />
+                  <rect class="st-fill" x="312" y="312" width="16" height="14" rx="2" />
+                </g>
+
+                <!-- 7 microphone -->
+                <g class="st-part" data-part="7">
+                  <rect class="st-fill" x="342" y="252" width="8" height="13" rx="3" />
+                  <path class="st-cable" d="M346 265C350 320 336 390 330 436" />
+                </g>
+
+                <!-- 9 recorder -->
+                <g class="st-part" data-part="9">
+                  <rect class="st-fill" x="298" y="436" width="44" height="28" rx="4" />
+                  <path d="M306 446h18M306 454h10" />
+                  <circle cx="334" cy="450" r="2.5" class="st-led" />
+                </g>
+
+                <!-- 4 wrist cameras -->
+                <g class="st-part" data-part="4">
+                  <rect class="st-fill" x="240" y="460" width="14" height="10" rx="2" transform="rotate(48 247 465)" />
+                  <rect class="st-fill" x="386" y="460" width="14" height="10" rx="2" transform="rotate(-48 393 465)" />
+                  <path class="st-dash st-fov" d="M254 472L290 514M386 472L350 514" />
+                </g>
+
+                <!-- 5 tactile gloves -->
+                <g class="st-part" data-part="5">
+                  <path d="M262 482L258 512M262 482L270 516M262 482L282 512M262 482L292 504M262 482L290 488" />
+                  <path d="M378 482L382 512M378 482L370 516M378 482L358 512M378 482L348 504M378 482L350 488" />
+                  <circle class="st-joint" cx="262" cy="482" r="4" />
+                  <circle class="st-joint" cx="378" cy="482" r="4" />
+                  <g class="st-taxel">
+                    <circle cx="258" cy="512" r="2.6" /><circle cx="270" cy="516" r="2.6" /><circle cx="282" cy="512" r="2.6" /><circle cx="292" cy="504" r="2.6" /><circle cx="290" cy="488" r="2.6" />
+                    <circle cx="382" cy="512" r="2.6" /><circle cx="370" cy="516" r="2.6" /><circle cx="358" cy="512" r="2.6" /><circle cx="348" cy="504" r="2.6" /><circle cx="350" cy="488" r="2.6" />
+                  </g>
+                </g>
+
+                <!-- hotspots -->
+                <g class="hotspots">
+                  <g class="hs" data-hs="1" transform="translate(320 64)"><path class="hs-lead" d="M0 11V37" /><circle r="11" /><text y="4">1</text></g>
+                  <g class="hs" data-hs="2" transform="translate(420 116)"><path class="hs-lead" d="M-10 5L-44 16" /><circle r="11" /><text y="4">2</text></g>
+                  <g class="hs" data-hs="3" transform="translate(236 196)"><path class="hs-lead" d="M10 -4L62 -26" /><circle r="11" /><text y="4">3</text></g>
+                  <g class="hs" data-hs="4" transform="translate(150 470)"><path class="hs-lead" d="M11 -2L90 -4" /><circle r="11" /><text y="4">4</text></g>
+                  <g class="hs" data-hs="5" transform="translate(236 600)"><path class="hs-lead" d="M4 -10L28 -82" /><circle r="11" /><text y="4">5</text></g>
+                  <g class="hs" data-hs="6" transform="translate(496 330)"><path class="hs-lead" d="M-11 3L-50 13" /><circle r="11" /><text y="4">6</text></g>
+                  <g class="hs" data-hs="7" transform="translate(402 238)"><path class="hs-lead" d="M-10 5L-46 18" /><circle r="11" /><text y="4">7</text></g>
+                  <g class="hs" data-hs="8" transform="translate(598 140)"><path class="hs-lead" d="M0 -11V-44" /><circle r="11" /><text y="4">8</text></g>
+                  <g class="hs" data-hs="9" transform="translate(320 400)"><path class="hs-lead" d="M0 11V36" /><circle r="11" /><text y="4">9</text></g>
+                </g>
+              </svg>
+              <figcaption class="mono">Fig. 1 · avcon capture rig, standard build</figcaption>
+            </figure>
+
+            <div class="station-panel" data-reveal>
+              <ol class="sensor-list" aria-label="Rig sensors">
+                <li><button type="button" data-sensor="1" aria-controls="sensor-detail"><span class="mono">01</span>Stereo head camera</button></li>
+                <li><button type="button" data-sensor="2" aria-controls="sensor-detail"><span class="mono">02</span>Depth</button></li>
+                <li><button type="button" data-sensor="3" aria-controls="sensor-detail"><span class="mono">03</span>Eye tracking</button></li>
+                <li><button type="button" data-sensor="4" aria-controls="sensor-detail"><span class="mono">04</span>Wrist cameras</button></li>
+                <li><button type="button" data-sensor="5" aria-controls="sensor-detail"><span class="mono">05</span>Tactile gloves</button></li>
+                <li><button type="button" data-sensor="6" aria-controls="sensor-detail"><span class="mono">06</span>Motion suit</button></li>
+                <li><button type="button" data-sensor="7" aria-controls="sensor-detail"><span class="mono">07</span>Audio</button></li>
+                <li><button type="button" data-sensor="8" aria-controls="sensor-detail"><span class="mono">08</span>Workcell cameras</button></li>
+                <li><button type="button" data-sensor="9" aria-controls="sensor-detail"><span class="mono">09</span>Recorder and sync</button></li>
+              </ol>
+
+              <article class="sensor-detail" id="sensor-detail" aria-live="polite">
+                <p class="mono sensor-kicker" data-detail-kicker>Sensor 01</p>
+                <h3 class="h3" data-detail-title>Stereo head camera</h3>
+                <p data-detail-body>Forehead mounted stereo pair that sees exactly what the operator sees, with hands, tools and parts in frame.</p>
+                <dl class="spec" data-detail-spec>
+                  <div><dt>Signals</dt><dd>Stereo RGB video</dd></div>
+                  <div><dt>Resolution</dt><dd>2 × 4K at 30 fps, or 1080p at 60</dd></div>
+                  <div><dt>Field of view</dt><dd>120° diagonal</dd></div>
+                </dl>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOMAINS -->
+      <section class="section section-rule" id="domains" aria-labelledby="domains-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>03</span> Domains</p>
+            <div class="split-main">
+              <h2 id="domains-title" class="h2" data-reveal>Any work done by hand. <em>We capture it.</em></h2>
+              <p class="section-intro" data-reveal>
+                From a technician swapping a drone motor to a line worker seating connectors at speed, we recruit the
+                people who actually do the job and record them doing it. If the task you need is not here, we build
+                the capture for it.
+              </p>
+            </div>
+          </div>
+
+          <ul class="domains">
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M18 20l12 8M30 20l-12 8" /><ellipse cx="13" cy="17" rx="7" ry="3" /><ellipse cx="35" cy="17" rx="7" ry="3" /><ellipse cx="13" cy="31" rx="7" ry="3" /><ellipse cx="35" cy="31" rx="7" ry="3" /><rect x="20" y="21" width="8" height="6" rx="1.5" class="acc" /></svg>
+              <p class="mono domain-n">D.01</p>
+              <h3 class="h4">Drone repair</h3>
+              <p>Motor swaps, soldering, frame rebuilds, prop balancing and pre flight checks.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="14" y="14" width="20" height="20" rx="2" /><rect x="19" y="19" width="10" height="10" class="acc" /><path d="M18 14V8M24 14V8M30 14V8M18 40v-6M24 40v-6M30 40v-6M14 18H8M14 24H8M14 30H8M40 18h-6M40 24h-6M40 30h-6" /></svg>
+              <p class="mono domain-n">D.02</p>
+              <h3 class="h4">Electronics</h3>
+              <p>PCB rework, connector mating, cable routing, component placement and testing.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M4 34h40" /><circle cx="10" cy="38" r="3" /><circle cx="24" cy="38" r="3" /><circle cx="38" cy="38" r="3" /><rect x="10" y="22" width="10" height="12" /><rect x="26" y="18" width="12" height="16" class="acc" /><path d="M32 18V8M28 8h8" /></svg>
+              <p class="mono domain-n">D.03</p>
+              <h3 class="h4">Manufacturing</h3>
+              <p>Line assembly, fastening, kitting, machine tending and quality inspection.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="16" /><circle cx="24" cy="24" r="5" class="acc" /><path d="M24 8v11M24 29v11M8 24h11M29 24h11M12.7 12.7l7.8 7.8M27.5 27.5l7.8 7.8M35.3 12.7l-7.8 7.8M20.5 27.5l-7.8 7.8" /></svg>
+              <p class="mono domain-n">D.04</p>
+              <h3 class="h4">Automotive</h3>
+              <p>Wire harnesses, trim fitting, torque work, final fitment and tyre service.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="6" y="26" width="16" height="14" /><rect x="26" y="26" width="16" height="14" /><rect x="16" y="10" width="16" height="16" class="acc" /><path d="M24 10v6M14 26v5M34 26v5" /></svg>
+              <p class="mono domain-n">D.05</p>
+              <h3 class="h4">Logistics</h3>
+              <p>Picking, packing, palletising, scanning, sorting and loading vehicles.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><ellipse cx="20" cy="28" rx="14" ry="6" /><path d="M6 28c0 6 6 10 14 10s14-4 14-10M34 26l10-4" /><path d="M14 18c0-3 3-3 3-6M20 18c0-3 3-3 3-6M26 18c0-3 3-3 3-6" class="acc" /></svg>
+              <p class="mono domain-n">D.06</p>
+              <h3 class="h4">Kitchens</h3>
+              <p>Prep, cutting, plating, dishwashing and hot line work in live service.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 40L40 8" /><ellipse cx="37" cy="11" rx="2" ry="4" transform="rotate(45 37 11)" /><path d="M10 30c6-2 6 6 12 4s6-8 12-6" class="acc" /></svg>
+              <p class="mono domain-n">D.07</p>
+              <h3 class="h4">Textiles</h3>
+              <p>Cutting, sewing, folding, pressing and finishing garments and cloth.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M18 6h12M20 6v14L9 38a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L28 20V6" /><path d="M13 32h22" class="acc" /></svg>
+              <p class="mono domain-n">D.08</p>
+              <h3 class="h4">Lab and medical</h3>
+              <p>Pipetting, sample handling, sterile packing, sorting and kitting supplies.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M6 22L24 8l18 14M10 19v21h28V19" /><rect x="20" y="28" width="8" height="12" class="acc" /></svg>
+              <p class="mono domain-n">D.09</p>
+              <h3 class="h4">Household</h3>
+              <p>Laundry, tidying, bed making and cleaning across homes and hotels.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="8" y="8" width="18" height="10" rx="1" /><path d="M17 18v24" /><path d="M30 30l10 10M34 26l8 8" class="acc" /></svg>
+              <p class="mono domain-n">D.10</p>
+              <h3 class="h4">Trades</h3>
+              <p>Power tools, drilling, fitting, plumbing, maintenance and repair.</p>
+            </li>
+            <li class="domain" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 40V20l10 6v-6l10 6v-6l12 8v12Z" /><path d="M34 14V6h4v10" class="acc" /></svg>
+              <p class="mono domain-n">D.11</p>
+              <h3 class="h4">Heavy industry</h3>
+              <p>Specialised and hazardous work in plants, yards and cleanrooms.</p>
+            </li>
+            <li class="domain domain-custom" data-reveal>
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="17" class="dash" /><path d="M24 15v18M15 24h18" /></svg>
+              <p class="mono domain-n">D.∞</p>
+              <h3 class="h4">Custom</h3>
+              <p>Name the task. We find the people, the place and build the rig around it.</p>
+              <button class="btn btn-solid btn-sm" type="button" data-open-sample>
+                Scope a custom capture
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ANNOTATION -->
+      <section class="section section-rule" id="annotation" aria-labelledby="annotation-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>04</span> Annotation</p>
+            <div class="split-main">
+              <h2 id="annotation-title" class="h2" data-reveal>All data is annotated. <em>To an industrial standard.</em></h2>
+              <p class="section-intro" data-reveal>
+                Nothing ships raw unless you ask for it. Hands, objects, actions, gaze and force are labelled by
+                trained annotators, checked by a second pass and signed off by a domain expert who knows the task.
+                Every label is traceable to the frame it came from.
+              </p>
+            </div>
+          </div>
+
+          <div class="annot" data-annot data-reveal>
+            <div class="annot-tabs" role="tablist" aria-label="Annotation examples"><button class="annot-tab" type="button" role="tab" id="tab-ego" aria-controls="panel-ego" aria-selected="true" tabindex="0"><span class="mono">EGO</span>Hands + objects</button><button class="annot-tab" type="button" role="tab" id="tab-act" aria-controls="panel-act" aria-selected="false" tabindex="-1"><span class="mono">ACT</span>Actions</button><button class="annot-tab" type="button" role="tab" id="tab-tac" aria-controls="panel-tac" aria-selected="false" tabindex="-1"><span class="mono">TAC</span>Force</button></div>
+            <div class="annot-window">
+<div class="annot-panel is-active" role="tabpanel" id="panel-ego" aria-labelledby="tab-ego" tabindex="0">
+  <div class="annot-bar mono"><span class="crumbs">EGO-214 / drone_repair / clip_0918.mp4</span><span class="meta">Stereo 4K · 30 fps</span><span class="status"><i class="live-dot"></i>2 of 2 reviewers</span></div>
+  <div class="annot-body"><div class="annot-stage"><svg class="annot-svg" viewBox="0 0 760 390" role="img" aria-labelledby="annot-ego-t">
+  <title id="annot-ego-t">First person frame of a drone repair with both hands tracked as 21 point skeletons, the drone frame segmented, the screwdriver boxed, the screw marked and the operator's gaze shown on the front rotor.</title>
+  <g class="scene-faint rows"><path d="M-200 390L250 30" /><path d="M0 390L310 30" /><path d="M200 390L360 30" /><path d="M400 390L410 30" /><path d="M600 390L460 30" /><path d="M800 390L510 30" /><path d="M1000 390L560 30" /><path d="M0 60H760" /><path d="M0 110H760" /><path d="M0 175H760" /><path d="M0 255H760" /><path d="M0 350H760" /></g>
+  <g class="scene"><path d="M355.2 195.6L254.0 147.8" /><path d="M428.8 195.6L530.0 147.8" /><path d="M355.2 232.4L235.6 271.0" /><path d="M428.8 232.4L548.4 271.0" /><ellipse cx="254.0" cy="147.8" rx="55.2" ry="22.1" /><ellipse cx="254.0" cy="147.8" rx="7.4" ry="3.7" /><ellipse cx="530.0" cy="147.8" rx="55.2" ry="22.1" /><ellipse cx="530.0" cy="147.8" rx="7.4" ry="3.7" /><path class="prop" d="M499.1 132.6L560.9 162.9" /><ellipse cx="235.6" cy="271.0" rx="55.2" ry="22.1" /><ellipse cx="235.6" cy="271.0" rx="7.4" ry="3.7" /><path class="prop" d="M264.8 255.4L206.4 286.7" /><ellipse cx="548.4" cy="271.0" rx="55.2" ry="22.1" /><ellipse cx="548.4" cy="271.0" rx="7.4" ry="3.7" /><path class="prop" d="M502.6 263.5L594.2 278.6" /><rect class="body" x="346.0" y="188.2" width="92.0" height="51.5" rx="11.0" /><rect class="faint" x="364.4" y="201.1" width="55.2" height="25.8" rx="4" /><path d="M484.0 249.9L533.2 229.9" /><path class="handle" d="M533.2 229.9L581.0 210.5" /></g>
+  <g class="hand"><path class="bones" d="M123.4 230.6L143.1 240.0M143.1 240.0L163.7 239.9M163.7 239.9L177.6 237.2M177.6 237.2L187.7 234.1M123.4 230.6L171.6 210.7M171.6 210.7L189.8 200.4M189.8 200.4L199.6 195.0M199.6 195.0L207.3 190.1M171.6 210.7L167.2 198.7M167.2 198.7L185.3 185.5M185.3 185.5L195.4 178.2M195.4 178.2L203.3 172.5M167.2 198.7L157.7 191.6M157.7 191.6L172.9 178.5M172.9 178.5L181.5 171.4M181.5 171.4L187.9 166.0M157.7 191.6L145.9 187.2M145.9 187.2L155.2 175.5M155.2 175.5L160.7 168.9M160.7 168.9L165.8 163.6M123.4 230.6L145.9 187.2" /><circle class="kp" cx="123.4" cy="230.6" r="2.6" /><circle class="kp" cx="143.1" cy="240.0" r="2.6" /><circle class="kp" cx="163.7" cy="239.9" r="2.6" /><circle class="kp" cx="177.6" cy="237.2" r="2.6" /><circle class="tip" cx="187.7" cy="234.1" r="3.6" /><circle class="kp" cx="171.6" cy="210.7" r="2.6" /><circle class="kp" cx="189.8" cy="200.4" r="2.6" /><circle class="kp" cx="199.6" cy="195.0" r="2.6" /><circle class="tip" cx="207.3" cy="190.1" r="3.6" /><circle class="kp" cx="167.2" cy="198.7" r="2.6" /><circle class="kp" cx="185.3" cy="185.5" r="2.6" /><circle class="kp" cx="195.4" cy="178.2" r="2.6" /><circle class="tip" cx="203.3" cy="172.5" r="3.6" /><circle class="kp" cx="157.7" cy="191.6" r="2.6" /><circle class="kp" cx="172.9" cy="178.5" r="2.6" /><circle class="kp" cx="181.5" cy="171.4" r="2.6" /><circle class="tip" cx="187.9" cy="166.0" r="3.6" /><circle class="kp" cx="145.9" cy="187.2" r="2.6" /><circle class="kp" cx="155.2" cy="175.5" r="2.6" /><circle class="kp" cx="160.7" cy="168.9" r="2.6" /><circle class="tip" cx="165.8" cy="163.6" r="3.6" /></g><g class="hand"><path class="bones" d="M611.0 245.3L590.1 251.8M590.1 251.8L570.3 247.2M570.3 247.2L559.2 241.6M559.2 241.6L552.6 236.9M611.0 245.3L566.0 218.9M566.0 218.9L551.4 207.7M551.4 207.7L545.7 203.5M545.7 203.5L542.1 200.3M566.0 218.9L572.0 207.6M572.0 207.6L557.9 194.0M557.9 194.0L552.1 188.4M552.1 188.4L548.4 184.9M572.0 207.6L582.4 201.9M582.4 201.9L570.8 188.7M570.8 188.7L565.9 183.5M565.9 183.5L563.0 180.2M582.4 201.9L594.7 199.2M594.7 199.2L588.1 187.9M588.1 187.9L585.1 183.2M585.1 183.2L582.6 180.0M611.0 245.3L594.7 199.2" /><circle class="kp" cx="611.0" cy="245.3" r="2.6" /><circle class="kp" cx="590.1" cy="251.8" r="2.6" /><circle class="kp" cx="570.3" cy="247.2" r="2.6" /><circle class="kp" cx="559.2" cy="241.6" r="2.6" /><circle class="tip" cx="552.6" cy="236.9" r="3.6" /><circle class="kp" cx="566.0" cy="218.9" r="2.6" /><circle class="kp" cx="551.4" cy="207.7" r="2.6" /><circle class="kp" cx="545.7" cy="203.5" r="2.6" /><circle class="tip" cx="542.1" cy="200.3" r="3.6" /><circle class="kp" cx="572.0" cy="207.6" r="2.6" /><circle class="kp" cx="557.9" cy="194.0" r="2.6" /><circle class="kp" cx="552.1" cy="188.4" r="2.6" /><circle class="tip" cx="548.4" cy="184.9" r="3.6" /><circle class="kp" cx="582.4" cy="201.9" r="2.6" /><circle class="kp" cx="570.8" cy="188.7" r="2.6" /><circle class="kp" cx="565.9" cy="183.5" r="2.6" /><circle class="tip" cx="563.0" cy="180.2" r="3.6" /><circle class="kp" cx="594.7" cy="199.2" r="2.6" /><circle class="kp" cx="588.1" cy="187.9" r="2.6" /><circle class="kp" cx="585.1" cy="183.2" r="2.6" /><circle class="tip" cx="582.6" cy="180.0" r="3.6" /></g>
+  <g class="annots">
+    <polygon class="a-poly a-ok " style="--i:1" points="195,135 309,126 346,177 438,177 475,126 589,135 602,159 530,177 447,203 447,232 512,247 609,260 604,289 493,293 438,251 346,251 291,293 179,288 175,258 272,247 337,232 337,203 254,177 182,159" data-handles /><g class="tag tag-ok" style="--i:1"><rect x="235" y="93" width="198" height="16" rx="2" /><text x="241" y="104">OBJ · Quadcopter frame · 0.97</text></g>
+    <rect class="a-box a-ok" style="--i:2" x="111" y="152" width="108" height="100" rx="1" /><g class="tag tag-ok" style="--i:2"><rect x="111" y="254" width="146" height="16" rx="2" /><text x="117" y="265">HAND L · 21 KP · 0.97</text></g>
+    <rect class="a-box a-ok" style="--i:3" x="530" y="168" width="93" height="96" rx="1" /><g class="tag tag-ok" style="--i:3"><rect x="490" y="266" width="146" height="16" rx="2" /><text x="496" y="277">HAND R · 21 KP · 0.98</text></g>
+    <rect class="a-box a-ok" style="--i:4" x="525" y="203" width="64" height="35" rx="1" /><g class="tag tag-ok" style="--i:4"><rect x="553" y="183" width="166" height="16" rx="2" /><text x="559" y="194">TOOL · PH0 driver · 0.95</text></g>
+    <g class="target" style="--i:5"><circle cx="484.0" cy="249.9" r="6" /><path d="M472.0 249.9h6M490.0 249.9h6M484.0 237.9v6M484.0 255.9v6" /></g>
+    <g class="tag tag-ok" style="--i:5"><rect x="364" y="296" width="140" height="16" rx="2" /><text x="370" y="307">PT · M2 screw · 0.91</text></g>
+    <g class="gaze" style="--i:6"><circle cx="258.0" cy="149.8" r="17" /><circle class="dot" cx="258.0" cy="149.8" r="2" /></g>
+    <g class="tag tag-review" style="--i:6"><rect x="324" y="112" width="153" height="16" rx="2" /><text x="330" y="123">GAZE · fixation 412 ms</text></g>
+  </g>
+</svg></div><aside class="annot-labels mono"><p class="annot-lh">Labels <span>6</span></p><ul><li><i class="sw sw-ok"></i><span>Hand left<small>21 keypoints · 3D</small></span><b>0.97</b></li><li><i class="sw sw-ok"></i><span>Hand right<small>21 keypoints · 3D</small></span><b>0.98</b></li><li><i class="sw sw-ok"></i><span>Quadcopter frame<small>Polygon mask</small></span><b>0.97</b></li><li><i class="sw sw-ok"></i><span>PH0 screwdriver<small>Box · tool</small></span><b>0.95</b></li><li><i class="sw sw-ok"></i><span>M2 screw<small>Point · target</small></span><b>0.91</b></li><li><i class="sw sw-review"></i><span>Gaze fixation<small>Front rotor · 412 ms</small></span><b>eye</b></li></ul><div class="annot-foot"><p><span>Skeleton</span>21 kp per hand</p><p><span>Export</span>COCO keypoints · MCAP</p></div></aside></div>
+</div>
+<div class="annot-panel" role="tabpanel" id="panel-act" aria-labelledby="tab-act" tabindex="0" hidden>
+  <div class="annot-bar mono"><span class="crumbs">EGO-214 / clip_0918 / actions.json</span><span class="meta">12.0 s · 5 segments</span><span class="status"><i class="live-dot"></i>Expert pass</span></div>
+  <div class="annot-body"><div class="annot-stage"><svg class="annot-svg" viewBox="0 0 760 390" role="img" aria-labelledby="annot-act-t">
+  <title id="annot-act-t">Twelve second action timeline for a drone repair: frame strip, labelled verb and noun segments, hand grasp state, grip force rising during fastening and wrist rotation oscillating as the screw turns.</title>
+  <g class="axes"><text x="12" y="108">ACTION</text><text x="12" y="153">HAND R</text><text x="12" y="200">GRIP</text><text x="12" y="213" class="unit">N</text><text x="12" y="300">WRIST</text><text x="12" y="313" class="unit">rad/s</text><text x="110" y="384" text-anchor="middle">00:00</text><path class="grid v" d="M110 84V368" /><text x="215" y="384" text-anchor="middle">00:02</text><path class="grid v" d="M215 84V368" /><text x="320" y="384" text-anchor="middle">00:04</text><path class="grid v" d="M320 84V368" /><text x="425" y="384" text-anchor="middle">00:06</text><path class="grid v" d="M425 84V368" /><text x="530" y="384" text-anchor="middle">00:08</text><path class="grid v" d="M530 84V368" /><text x="635" y="384" text-anchor="middle">00:10</text><path class="grid v" d="M635 84V368" /><text x="740" y="384" text-anchor="middle">00:12</text><path class="grid v" d="M740 84V368" /><path class="grid" d="M110 250H740M110 330H740" /></g>
+  <g class="thumb"><rect x="110" y="16" width="80" height="48" rx="2" /><text x="114" y="60">18200</text><path class="faint" d="M130 34l40 0M138 28l24 12M138 40l24 -12" /><circle class="tipdot" cx="168" cy="30" r="2.4" /></g><g class="thumb"><rect x="200" y="16" width="80" height="48" rx="2" /><text x="204" y="60">18236</text><path class="faint" d="M220 34l40 0M228 28l24 12M228 40l24 -12" /><circle class="tipdot" cx="252" cy="38" r="2.4" /></g><g class="thumb"><rect x="290" y="16" width="80" height="48" rx="2" /><text x="294" y="60">18272</text><path class="faint" d="M310 34l40 0M318 28l24 12M318 40l24 -12" /><circle class="tipdot" cx="336" cy="30" r="2.4" /></g><g class="thumb"><rect x="380" y="16" width="80" height="48" rx="2" /><text x="384" y="60">18308</text><path class="faint" d="M400 34l40 0M408 28l24 12M408 40l24 -12" /><circle class="tipdot" cx="438" cy="38" r="2.4" /></g><g class="thumb"><rect x="470" y="16" width="80" height="48" rx="2" /><text x="474" y="60">18344</text><path class="faint" d="M490 34l40 0M498 28l24 12M498 40l24 -12" /><circle class="tipdot" cx="522" cy="30" r="2.4" /></g><g class="thumb"><rect x="560" y="16" width="80" height="48" rx="2" /><text x="564" y="60">18380</text><path class="faint" d="M580 34l40 0M588 28l24 12M588 40l24 -12" /><circle class="tipdot" cx="606" cy="38" r="2.4" /></g><g class="thumb"><rect x="650" y="16" width="80" height="48" rx="2" /><text x="654" y="60">18416</text><path class="faint" d="M670 34l40 0M678 28l24 12M678 40l24 -12" /><circle class="tipdot" cx="708" cy="30" r="2.4" /></g>
+  <g class="annots"><g class="seg" style="--i:1"><rect x="111.0" y="92" width="82.0" height="34" rx="2" /><text x="118.0" y="106" class="verb">PICK</text><text x="118.0" y="119" class="noun">screwdriver</text></g><g class="seg" style="--i:2"><rect x="195.0" y="92" width="82.0" height="34" rx="2" /><text x="202.0" y="106" class="verb">ALIGN</text><text x="202.0" y="119" class="noun">bit to screw</text></g><g class="seg" style="--i:3"><rect x="279.0" y="92" width="218.5" height="34" rx="2" /><text x="286.0" y="106" class="verb">FASTEN</text><text x="286.0" y="119" class="noun">M2 screw</text></g><g class="seg" style="--i:4"><rect x="499.5" y="92" width="61.0" height="34" rx="2" /><text x="506.5" y="106" class="verb">PLACE</text><text x="506.5" y="119" class="noun">driver</text></g><g class="seg" style="--i:5"><rect x="562.5" y="92" width="176.5" height="34" rx="2" /><text x="569.5" y="106" class="verb">INSPECT</text><text x="569.5" y="119" class="noun">front rotor</text></g></g>
+  <rect class="state s-off" x="111.0" y="142" width="40.0" height="14" rx="1" /><text x="116.0" y="152.5" class="small">free</text><rect class="state s-on" x="153.0" y="142" width="355.0" height="14" rx="1" /><text x="158.0" y="152.5" class="small">grasp · power</text><rect class="state s-off" x="510.0" y="142" width="40.0" height="14" rx="1" /><text x="515.0" y="152.5" class="small">release</text><rect class="state s-off" x="552.0" y="142" width="187.0" height="14" rx="1" /><text x="557.0" y="152.5" class="small">free</text>
+  <g class="series"><path d="M110.0,246.7 L112.6,246.1 L115.2,246.3 L117.9,247.2 L120.5,247.2 L123.1,247.2 L125.8,246.5 L128.4,247.1 L131.0,246.2 L133.6,246.3 L136.2,245.5 L138.9,245.8 L141.5,247.0 L144.1,246.7 L146.8,247.0 L149.4,246.1 L152.0,246.3 L154.6,233.1 L157.2,232.7 L159.9,232.7 L162.5,232.9 L165.1,230.6 L167.8,230.3 L170.4,231.1 L173.0,233.7 L175.6,231.7 L178.2,231.3 L180.9,232.2 L183.5,232.1 L186.1,231.3 L188.8,230.8 L191.4,231.4 L194.0,233.2 L196.6,231.0 L199.2,232.4 L201.9,232.2 L204.5,230.9 L207.1,232.3 L209.8,230.4 L212.4,233.0 L215.0,231.7 L217.6,232.3 L220.2,230.4 L222.9,231.6 L225.5,230.6 L228.1,230.9 L230.8,233.4 L233.4,233.6 L236.0,232.6 L238.6,233.3 L241.2,233.7 L243.9,233.3 L246.5,232.5 L249.1,230.2 L251.8,233.5 L254.4,232.8 L257.0,233.7 L259.6,233.3 L262.2,231.9 L264.9,231.3 L267.5,233.2 L270.1,231.0 L272.8,230.9 L275.4,230.9 L278.0,233.0 L280.6,194.0 L283.2,190.4 L285.9,191.6 L288.5,190.0 L291.1,197.1 L293.8,199.6 L296.4,202.6 L299.0,212.5 L301.6,212.6 L304.2,204.6 L306.9,199.3 L309.5,196.4 L312.1,193.1 L314.8,190.4 L317.4,190.2 L320.0,193.2 L322.6,193.7 L325.2,197.7 L327.9,203.1 L330.5,210.7 L333.1,211.6 L335.8,203.5 L338.4,198.3 L341.0,196.6 L343.6,193.8 L346.2,188.1 L348.9,187.8 L351.5,192.3 L354.1,194.2 L356.8,198.6 L359.4,205.8 L362.0,211.7 L364.6,213.6 L367.2,208.0 L369.9,199.7 L372.5,194.0 L375.1,193.4 L377.8,192.0 L380.4,188.8 L383.0,193.7 L385.6,195.6 L388.2,198.6 L390.9,202.6 L393.5,208.7 L396.1,214.5 L398.8,204.7 L401.4,201.7 L404.0,193.8 L406.6,193.5 L409.2,190.5 L411.9,192.0 L414.5,192.5 L417.1,192.8 L419.8,199.6 L422.4,201.1 L425.0,208.7 L427.6,212.5 L430.2,209.1 L432.9,200.9 L435.5,198.8 L438.1,192.0 L440.8,191.7 L443.4,190.0 L446.0,190.5 L448.6,192.4 L451.2,198.6 L453.9,202.5 L456.5,209.8 L459.1,211.9 L461.8,205.2 L464.4,199.4 L467.0,195.8 L469.6,195.4 L472.2,191.5 L474.9,188.4 L477.5,191.9 L480.1,194.0 L482.8,195.5 L485.4,202.0 L488.0,206.4 L490.6,212.9 L493.2,207.1 L495.9,202.2 L498.5,230.3 L501.1,232.7 L503.8,233.2 L506.4,230.5 L509.0,246.9 L511.6,245.5 L514.2,247.0 L516.9,247.1 L519.5,247.1 L522.1,246.8 L524.8,245.7 L527.4,246.6 L530.0,246.4 L532.6,246.7 L535.2,246.8 L537.9,247.1 L540.5,246.2 L543.1,246.9 L545.8,246.9 L548.4,246.5 L551.0,245.8 L553.6,247.3 L556.2,246.0 L558.9,246.4 L561.5,247.3 L564.1,245.6 L566.8,245.8 L569.4,246.9 L572.0,247.0 L574.6,246.1 L577.2,246.0 L579.9,245.9 L582.5,246.3 L585.1,245.9 L587.8,245.6 L590.4,246.8 L593.0,246.8 L595.6,246.0 L598.2,247.2 L600.9,246.3 L603.5,246.9 L606.1,247.3 L608.8,246.5 L611.4,246.1 L614.0,246.4 L616.6,246.9 L619.2,246.0 L621.9,247.3 L624.5,246.1 L627.1,246.8 L629.8,245.6 L632.4,247.2 L635.0,246.5 L637.6,246.9 L640.2,246.0 L642.9,246.9 L645.5,246.7 L648.1,246.9 L650.8,245.9 L653.4,245.6 L656.0,247.0 L658.6,246.5 L661.2,245.6 L663.9,246.6 L666.5,245.5 L669.1,247.2 L671.8,246.6 L674.4,245.7 L677.0,245.5 L679.6,246.7 L682.2,245.6 L684.9,247.2 L687.5,246.6 L690.1,246.7 L692.8,247.3 L695.4,246.7 L698.0,247.1 L700.6,246.9 L703.2,245.8 L705.9,246.5 L708.5,246.4 L711.1,245.6 L713.8,246.6 L716.4,247.2 L719.0,245.8 L721.6,247.2 L724.2,247.2 L726.9,246.8 L729.5,245.7 L732.1,246.8 L734.8,246.2 L737.4,246.0 L740.0,246.8" /><path class="thin" d="M110.0,331.2 L112.6,331.2 L115.2,329.9 L117.9,329.1 L120.5,329.1 L123.1,330.0 L125.8,327.2 L128.4,329.0 L131.0,326.2 L133.6,327.9 L136.2,328.9 L138.9,327.9 L141.5,328.3 L144.1,325.6 L146.8,326.2 L149.4,326.8 L152.0,327.7 L154.6,325.4 L157.2,325.6 L159.9,324.8 L162.5,325.5 L165.1,324.9 L167.8,327.0 L170.4,326.8 L173.0,325.0 L175.6,324.3 L178.2,325.3 L180.9,324.5 L183.5,325.2 L186.1,325.3 L188.8,326.7 L191.4,327.7 L194.0,327.5 L196.6,327.6 L199.2,325.2 L201.9,326.5 L204.5,325.6 L207.1,327.5 L209.8,328.5 L212.4,328.4 L215.0,328.6 L217.6,328.4 L220.2,327.6 L222.9,327.9 L225.5,327.8 L228.1,329.4 L230.8,328.9 L233.4,330.6 L236.0,331.5 L238.6,331.6 L241.2,329.2 L243.9,331.6 L246.5,332.4 L249.1,331.4 L251.8,333.0 L254.4,330.7 L257.0,330.5 L259.6,332.2 L262.2,330.9 L264.9,333.7 L267.5,332.1 L270.1,333.8 L272.8,331.7 L275.4,332.5 L278.0,333.7 L280.6,315.8 L283.2,301.3 L285.9,300.5 L288.5,303.2 L291.1,312.3 L293.8,328.1 L296.4,345.2 L299.0,357.8 L301.6,358.7 L304.2,359.3 L306.9,346.7 L309.5,332.2 L312.1,317.5 L314.8,302.4 L317.4,299.1 L320.0,301.2 L322.6,313.8 L325.2,327.7 L327.9,343.3 L330.5,355.5 L333.1,360.8 L335.8,358.9 L338.4,349.2 L341.0,331.9 L343.6,316.4 L346.2,302.9 L348.9,300.8 L351.5,302.7 L354.1,314.0 L356.8,324.5 L359.4,344.4 L362.0,352.9 L364.6,360.3 L367.2,358.7 L369.9,350.5 L372.5,334.7 L375.1,318.2 L377.8,307.0 L380.4,299.5 L383.0,303.5 L385.6,308.9 L388.2,323.9 L390.9,341.8 L393.5,354.6 L396.1,361.5 L398.8,358.1 L401.4,351.2 L404.0,335.1 L406.6,321.7 L409.2,306.5 L411.9,301.7 L414.5,300.8 L417.1,310.3 L419.8,323.4 L422.4,338.8 L425.0,351.6 L427.6,359.3 L430.2,359.9 L432.9,350.1 L435.5,335.5 L438.1,319.7 L440.8,308.7 L443.4,300.1 L446.0,302.4 L448.6,308.5 L451.2,321.9 L453.9,338.7 L456.5,350.2 L459.1,360.1 L461.8,359.3 L464.4,350.2 L467.0,336.1 L469.6,322.3 L472.2,306.8 L474.9,298.4 L477.5,300.6 L480.1,308.9 L482.8,319.6 L485.4,337.9 L488.0,349.4 L490.6,358.5 L493.2,362.0 L495.9,353.5 L498.5,331.7 L501.1,330.9 L503.8,332.6 L506.4,331.7 L509.0,330.5 L511.6,332.4 L514.2,333.5 L516.9,333.2 L519.5,333.8 L522.1,332.9 L524.8,332.4 L527.4,333.8 L530.0,334.1 L532.6,335.3 L535.2,332.3 L537.9,334.0 L540.5,332.9 L543.1,335.0 L545.8,334.7 L548.4,332.8 L551.0,333.1 L553.6,336.0 L556.2,333.0 L558.9,334.1 L561.5,334.7 L564.1,333.1 L566.8,332.5 L569.4,335.5 L572.0,333.9 L574.6,332.3 L577.2,333.2 L579.9,333.7 L582.5,335.0 L585.1,334.1 L587.8,332.4 L590.4,334.0 L593.0,332.0 L595.6,333.6 L598.2,331.9 L600.9,332.2 L603.5,331.1 L606.1,331.9 L608.8,329.3 L611.4,329.3 L614.0,331.3 L616.6,328.5 L619.2,330.5 L621.9,329.5 L624.5,329.5 L627.1,328.4 L629.8,329.6 L632.4,329.0 L635.0,327.5 L637.6,326.9 L640.2,327.6 L642.9,325.8 L645.5,326.1 L648.1,328.0 L650.8,327.5 L653.4,326.6 L656.0,327.4 L658.6,325.7 L661.2,327.4 L663.9,327.0 L666.5,327.1 L669.1,327.3 L671.8,324.3 L674.4,324.8 L677.0,324.1 L679.6,326.7 L682.2,324.7 L684.9,325.0 L687.5,326.1 L690.1,326.9 L692.8,326.6 L695.4,324.3 L698.0,324.4 L700.6,326.6 L703.2,325.1 L705.9,328.0 L708.5,327.0 L711.1,327.9 L713.8,325.6 L716.4,327.5 L719.0,326.5 L721.6,329.3 L724.2,326.4 L726.9,327.3 L729.5,329.0 L732.1,327.1 L734.8,329.8 L737.4,329.9 L740.0,331.3" /></g>
+  <g class="annots">
+    <circle class="mark" cx="377.8" cy="190.0" r="4" /><g class="tag tag-ok" style="--i:6"><rect x="388" y="170" width="121" height="16" rx="2" /><text x="394" y="182">PEAK GRIP · 9.8 N</text></g>
+    <g class="tag tag-ok" style="--i:7"><rect x="278" y="344" width="185" height="16" rx="2" /><text x="284" y="356">ROTATION · 6 turns · 1.8 Hz</text></g>
+  </g>
+  <line class="playhead" x1="110" y1="84" x2="110" y2="370" />
+</svg></div><aside class="annot-labels mono"><p class="annot-lh">Labels <span>5</span></p><ul><li><i class="sw sw-ok"></i><span>Pick<small>screwdriver · 1.6 s</small></span><b>0.99</b></li><li><i class="sw sw-ok"></i><span>Align<small>bit to screw · 1.6 s</small></span><b>0.96</b></li><li><i class="sw sw-ok"></i><span>Fasten<small>M2 screw · 4.2 s</small></span><b>0.98</b></li><li><i class="sw sw-ok"></i><span>Place<small>screwdriver · 1.2 s</small></span><b>0.97</b></li><li><i class="sw sw-ok"></i><span>Inspect<small>front rotor · 3.4 s</small></span><b>0.94</b></li></ul><div class="annot-foot"><p><span>Taxonomy</span>Verb + noun</p><p><span>Export</span>JSON · HDF5 · LeRobot</p></div></aside></div>
+</div>
+<div class="annot-panel" role="tabpanel" id="panel-tac" aria-labelledby="tab-tac" tabindex="0" hidden>
+  <div class="annot-bar mono"><span class="crumbs">TAC-031 / glove_R / clip_0918.h5</span><span class="meta">120 taxels · 100 Hz</span><span class="status"><i class="live-dot"></i>QC complete</span></div>
+  <div class="annot-body"><div class="annot-stage"><svg class="annot-svg" viewBox="0 0 760 390" role="img" aria-labelledby="annot-tac-t">
+  <title id="annot-tac-t">Tactile glove pressure map during a precision pinch, with pressure peaks at the thumb and index fingertips and a bar chart of force by hand region.</title>
+  <g class="glove"><path class="fingers" d="M297.3 319.2L329.3 279.4M329.3 279.4L347.4 246.4M347.4 246.4L359.2 219.1M280.1 220.3L286.1 168.2M286.1 168.2L289.7 139.8M289.7 139.8L291.3 115.9M250.0 211.7L250.0 155.6M250.0 155.6L250.0 123.5M250.0 123.5L250.0 98.0M222.1 220.3L218.0 170.2M218.0 170.2L216.3 141.7M216.3 141.7L214.6 119.7M196.2 237.5L186.2 201.4M186.2 201.4L180.9 180.0M180.9 180.0L177.6 161.1" /><polygon class="palm" points="250.0,345.0 297.3,319.2 280.1,220.3 250.0,211.7 222.1,220.3 196.2,237.5" /></g>
+  <g class="taxels"><circle cx="308.1" cy="316.9" r="2.2" style="--p:0.05" /><circle cx="297.2" cy="308.2" r="2.2" style="--p:0.05" /><circle cx="318.7" cy="303.7" r="2.2" style="--p:0.06" /><circle cx="307.8" cy="294.9" r="2.2" style="--p:0.06" /><circle cx="329.4" cy="290.4" r="2.4" style="--p:0.12" /><circle cx="318.5" cy="281.6" r="2.4" style="--p:0.14" /><circle cx="338.4" cy="277.2" r="3.0" style="--p:0.32" /><circle cx="326.2" cy="270.5" r="3.0" style="--p:0.32" /><circle cx="344.5" cy="266.3" r="4.0" style="--p:0.61" /><circle cx="332.2" cy="259.5" r="4.0" style="--p:0.62" /><circle cx="350.5" cy="255.3" r="5.1" style="--p:0.96" /><circle cx="338.2" cy="248.5" r="5.1" style="--p:0.98" /><circle cx="355.8" cy="244.6" r="5.2" style="--p:1.00" /><circle cx="342.9" cy="239.1" r="5.2" style="--p:1.00" /><circle cx="359.7" cy="235.5" r="5.2" style="--p:1.00" /><circle cx="346.8" cy="230.0" r="5.2" style="--p:1.00" /><circle cx="363.6" cy="226.4" r="5.2" style="--p:1.00" /><circle cx="350.8" cy="220.9" r="5.2" style="--p:1.00" /><circle cx="288.1" cy="212.4" r="2.3" style="--p:0.08" /><circle cx="274.1" cy="210.8" r="2.2" style="--p:0.06" /><circle cx="290.1" cy="195.1" r="2.3" style="--p:0.10" /><circle cx="276.2" cy="193.5" r="2.3" style="--p:0.09" /><circle cx="292.1" cy="177.7" r="2.8" style="--p:0.24" /><circle cx="278.2" cy="176.1" r="2.7" style="--p:0.23" /><circle cx="293.7" cy="164.4" r="3.6" style="--p:0.51" /><circle cx="279.8" cy="162.6" r="3.6" style="--p:0.51" /><circle cx="294.8" cy="154.9" r="4.5" style="--p:0.78" /><circle cx="281.0" cy="153.1" r="4.5" style="--p:0.79" /><circle cx="296.0" cy="145.4" r="5.2" style="--p:1.00" /><circle cx="282.1" cy="143.6" r="5.2" style="--p:1.00" /><circle cx="296.9" cy="136.3" r="5.2" style="--p:1.00" /><circle cx="283.0" cy="135.3" r="5.2" style="--p:1.00" /><circle cx="297.5" cy="128.3" r="5.2" style="--p:1.00" /><circle cx="283.5" cy="127.4" r="5.2" style="--p:1.00" /><circle cx="298.0" cy="120.4" r="5.2" style="--p:1.00" /><circle cx="284.0" cy="119.4" r="5.2" style="--p:1.00" /><circle cx="257.0" cy="202.4" r="2.2" style="--p:0.06" /><circle cx="243.0" cy="202.4" r="2.2" style="--p:0.05" /><circle cx="257.0" cy="183.7" r="2.3" style="--p:0.09" /><circle cx="243.0" cy="183.7" r="2.2" style="--p:0.06" /><circle cx="257.0" cy="165.0" r="2.7" style="--p:0.22" /><circle cx="243.0" cy="165.0" r="2.4" style="--p:0.11" /><circle cx="257.0" cy="150.3" r="3.3" style="--p:0.40" /><circle cx="243.0" cy="150.3" r="2.6" style="--p:0.19" /><circle cx="257.0" cy="139.5" r="3.8" style="--p:0.55" /><circle cx="243.0" cy="139.5" r="2.9" style="--p:0.28" /><circle cx="257.0" cy="128.8" r="4.2" style="--p:0.69" /><circle cx="243.0" cy="128.8" r="3.2" style="--p:0.38" /><circle cx="257.0" cy="119.2" r="4.5" style="--p:0.77" /><circle cx="243.0" cy="119.2" r="3.5" style="--p:0.46" /><circle cx="257.0" cy="110.8" r="4.6" style="--p:0.80" /><circle cx="243.0" cy="110.8" r="3.7" style="--p:0.52" /><circle cx="257.0" cy="102.3" r="4.5" style="--p:0.77" /><circle cx="243.0" cy="102.3" r="3.7" style="--p:0.54" /><circle cx="228.4" cy="211.4" r="2.2" style="--p:0.05" /><circle cx="214.4" cy="212.5" r="2.2" style="--p:0.05" /><circle cx="227.0" cy="194.7" r="2.2" style="--p:0.05" /><circle cx="213.1" cy="195.8" r="2.2" style="--p:0.05" /><circle cx="225.7" cy="178.0" r="2.2" style="--p:0.05" /><circle cx="211.7" cy="179.1" r="2.2" style="--p:0.05" /><circle cx="224.7" cy="165.0" r="2.2" style="--p:0.06" /><circle cx="210.8" cy="165.9" r="2.2" style="--p:0.05" /><circle cx="224.2" cy="155.5" r="2.2" style="--p:0.07" /><circle cx="210.2" cy="156.4" r="2.2" style="--p:0.05" /><circle cx="223.6" cy="146.0" r="2.3" style="--p:0.09" /><circle cx="209.6" cy="146.9" r="2.2" style="--p:0.06" /><circle cx="223.0" cy="137.5" r="2.4" style="--p:0.11" /><circle cx="209.0" cy="138.5" r="2.2" style="--p:0.07" /><circle cx="222.4" cy="130.1" r="2.4" style="--p:0.13" /><circle cx="208.5" cy="131.2" r="2.2" style="--p:0.07" /><circle cx="221.9" cy="122.8" r="2.5" style="--p:0.16" /><circle cx="207.9" cy="123.9" r="2.3" style="--p:0.08" /><circle cx="201.3" cy="229.6" r="2.2" style="--p:0.05" /><circle cx="187.8" cy="233.4" r="2.2" style="--p:0.05" /><circle cx="198.0" cy="217.6" r="2.2" style="--p:0.05" /><circle cx="184.5" cy="221.3" r="2.2" style="--p:0.05" /><circle cx="194.6" cy="205.6" r="2.2" style="--p:0.05" /><circle cx="181.2" cy="209.3" r="2.2" style="--p:0.05" /><circle cx="192.1" cy="196.2" r="2.2" style="--p:0.05" /><circle cx="178.6" cy="199.6" r="2.2" style="--p:0.05" /><circle cx="190.4" cy="189.0" r="2.2" style="--p:0.05" /><circle cx="176.8" cy="192.4" r="2.2" style="--p:0.05" /><circle cx="188.6" cy="181.9" r="2.2" style="--p:0.05" /><circle cx="175.0" cy="185.2" r="2.2" style="--p:0.05" /><circle cx="187.3" cy="175.6" r="2.2" style="--p:0.05" /><circle cx="173.5" cy="178.0" r="2.2" style="--p:0.05" /><circle cx="186.2" cy="169.3" r="2.2" style="--p:0.05" /><circle cx="172.4" cy="171.7" r="2.2" style="--p:0.05" /><circle cx="185.1" cy="163.0" r="2.2" style="--p:0.05" /><circle cx="171.3" cy="165.4" r="2.2" style="--p:0.05" /><circle cx="202.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="215.0" cy="230.0" r="2.2" style="--p:0.05" /><circle cx="215.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="215.0" cy="256.0" r="2.2" style="--p:0.05" /><circle cx="215.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="230.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="256.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="282.0" r="2.2" style="--p:0.05" /><circle cx="228.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="217.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="230.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="256.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="282.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="308.0" r="2.2" style="--p:0.05" /><circle cx="241.0" cy="321.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="217.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="230.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="256.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="282.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="308.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="321.0" r="2.2" style="--p:0.05" /><circle cx="254.0" cy="334.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="217.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="230.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="243.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="256.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="282.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="308.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="321.0" r="2.2" style="--p:0.05" /><circle cx="267.0" cy="334.0" r="2.2" style="--p:0.05" /><circle cx="280.0" cy="230.0" r="2.2" style="--p:0.06" /><circle cx="280.0" cy="243.0" r="2.2" style="--p:0.06" /><circle cx="280.0" cy="256.0" r="2.2" style="--p:0.06" /><circle cx="280.0" cy="269.0" r="2.2" style="--p:0.05" /><circle cx="280.0" cy="282.0" r="2.2" style="--p:0.05" /><circle cx="280.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="280.0" cy="308.0" r="2.2" style="--p:0.05" /><circle cx="280.0" cy="321.0" r="2.2" style="--p:0.05" /><circle cx="293.0" cy="295.0" r="2.2" style="--p:0.05" /><circle cx="293.0" cy="308.0" r="2.2" style="--p:0.05" /><circle cx="293.0" cy="321.0" r="2.2" style="--p:0.05" /></g>
+  <g class="annots">
+    <g class="tag tag-ok" style="--i:1"><rect x="221" y="76" width="172" height="16" rx="2" /><text x="227" y="87">PEAK · index tip · 14.2 N</text></g>
+    <g class="tag tag-ok" style="--i:2"><rect x="173" y="195" width="172" height="16" rx="2" /><text x="179" y="207">PEAK · thumb tip · 11.8 N</text></g>
+    <g class="tag tag-review" style="--i:3"><rect x="28" y="18" width="159" height="16" rx="2" /><text x="34" y="30">GRASP · precision pinch</text></g>
+    <g class="tag tag-warn" style="--i:4"><rect x="28" y="356" width="172" height="16" rx="2" /><text x="34" y="368">SLIP · 00:04.1 · 2 taxels</text></g>
+  </g>
+  <g class="bars-side"><text x="470" y="70">THUMB TIP</text><text x="740" y="70" text-anchor="end" class="val">11.8 N</text><rect class="track" x="470" y="78" width="270" height="6" rx="3" /><rect class="fill" style="--i:1" x="470" y="78" width="212.4" height="6" rx="3" /><text x="470" y="110">INDEX TIP</text><text x="740" y="110" text-anchor="end" class="val">14.2 N</text><rect class="track" x="470" y="118" width="270" height="6" rx="3" /><rect class="fill" style="--i:2" x="470" y="118" width="255.6" height="6" rx="3" /><text x="470" y="150">MIDDLE</text><text x="740" y="150" text-anchor="end" class="val">4.1 N</text><rect class="track" x="470" y="158" width="270" height="6" rx="3" /><rect class="fill" style="--i:3" x="470" y="158" width="73.8" height="6" rx="3" /><text x="470" y="190">RING</text><text x="740" y="190" text-anchor="end" class="val">1.2 N</text><rect class="track" x="470" y="198" width="270" height="6" rx="3" /><rect class="fill" style="--i:4" x="470" y="198" width="21.6" height="6" rx="3" /><text x="470" y="230">PINKY</text><text x="740" y="230" text-anchor="end" class="val">0.6 N</text><rect class="track" x="470" y="238" width="270" height="6" rx="3" /><rect class="fill" style="--i:5" x="470" y="238" width="10.8" height="6" rx="3" /><text x="470" y="270">PALM</text><text x="740" y="270" text-anchor="end" class="val">3.1 N</text><rect class="track" x="470" y="278" width="270" height="6" rx="3" /><rect class="fill" style="--i:6" x="470" y="278" width="55.8" height="6" rx="3" /></g>
+</svg></div><aside class="annot-labels mono"><p class="annot-lh">Labels <span>5</span></p><ul><li><i class="sw sw-ok"></i><span>Index tip<small>Peak force</small></span><b>14.2 N</b></li><li><i class="sw sw-ok"></i><span>Thumb tip<small>Peak force</small></span><b>11.8 N</b></li><li><i class="sw sw-ok"></i><span>Palm<small>Mean force</small></span><b>3.1 N</b></li><li><i class="sw sw-review"></i><span>Grasp type<small>Precision pinch</small></span><b>GRASP</b></li><li><i class="sw sw-warn"></i><span>Slip event<small>00:04.1 · 2 taxels</small></span><b>flag</b></li></ul><div class="annot-foot"><p><span>Sensor</span>120 taxels · 100 Hz</p><p><span>Export</span>HDF5 · MCAP</p></div></aside></div>
+</div>
+            </div>
+          </div>
+
+          <ul class="standards">
+            <li data-reveal><span class="mono">QA.1</span><h3 class="h4">Two pass labelling</h3><p>Two annotators label blind. A domain expert adjudicates every disagreement before release.</p></li>
+            <li data-reveal><span class="mono">QA.2</span><h3 class="h4">Measured agreement</h3><p>Inter-annotator agreement is scored on every batch and published in the data card. We target κ ≥ 0.90.</p></li>
+            <li data-reveal><span class="mono">QA.3</span><h3 class="h4">Your label spec</h3><p>Start from our verb and noun action taxonomy and 21 point hand skeleton, or bring your own schema.</p></li>
+            <li data-reveal><span class="mono">QA.4</span><h3 class="h4">Stream level QC</h3><p>Sync drift, dropped frames, occlusion and sensor faults are flagged per clip. Nothing is silently dropped.</p></li>
+            <li data-reveal><span class="mono">QA.5</span><h3 class="h4">Open formats</h3><p>MCAP, HDF5, COCO keypoints, MP4 with JSON and LeRobot style datasets. Loads straight into your stack.</p></li>
+            <li data-reveal><span class="mono">QA.6</span><h3 class="h4">Privacy built in</h3><p>Faces, screens and badges are blurred. Each label carries annotator, timestamp and review history.</p></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- STREAMS -->
+      <section class="section section-rule" id="streams" aria-labelledby="streams-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>05</span> Streams</p>
+            <div class="split-main">
+              <h2 id="streams-title" class="h2" data-reveal>Seven streams. <em>One clock.</em></h2>
+              <p class="section-intro" data-reveal>
+                Every stream is hardware synced. When the screwdriver bites, you see it in the video, the wrist
+                rotation, the grip force and the sound of the motor at the same timestamp.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap" data-reveal>
+            <table class="catalog mono">
+              <caption class="visually-hidden">avcon data streams with signals, annotation, rate and delivery format</caption>
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Stream</th>
+                  <th scope="col">Signals</th>
+                  <th scope="col">Annotation</th>
+                  <th scope="col">Rate</th>
+                  <th scope="col">Format</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="ID">EGO</td>
+                  <th scope="row" data-label="Stream">First person video</th>
+                  <td data-label="Signals">Stereo RGB, depth</td>
+                  <td data-label="Annotation">Objects, masks, tools, contact</td>
+                  <td data-label="Rate">30 to 60 fps</td>
+                  <td data-label="Format">MP4 + JSON</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">HND</td>
+                  <th scope="row" data-label="Stream">Hand pose</th>
+                  <td data-label="Signals">21 keypoints per hand, 3D</td>
+                  <td data-label="Annotation">Keypoints, grasp type, hand state</td>
+                  <td data-label="Rate">30 fps</td>
+                  <td data-label="Format">COCO keypoints</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">ACT</td>
+                  <th scope="row" data-label="Stream">Actions</th>
+                  <td data-label="Signals">Task steps, narration</td>
+                  <td data-label="Annotation">Verb and noun segments, success</td>
+                  <td data-label="Rate">Per segment</td>
+                  <td data-label="Format">JSON</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">GAZ</td>
+                  <th scope="row" data-label="Stream">Gaze</th>
+                  <td data-label="Signals">Gaze vector, fixations, pupil</td>
+                  <td data-label="Annotation">Fixation targets, attention</td>
+                  <td data-label="Rate">120 Hz</td>
+                  <td data-label="Format">Parquet</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">TAC</td>
+                  <th scope="row" data-label="Stream">Touch</th>
+                  <td data-label="Signals">120 taxel pressure map per hand</td>
+                  <td data-label="Annotation">Contact, peak force, slip</td>
+                  <td data-label="Rate">100 Hz</td>
+                  <td data-label="Format">HDF5</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">MOT</td>
+                  <th scope="row" data-label="Stream">Body motion</th>
+                  <td data-label="Signals">7 IMUs, joint angles</td>
+                  <td data-label="Annotation">Posture, reach, QC flags</td>
+                  <td data-label="Rate">200 Hz</td>
+                  <td data-label="Format">MCAP</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">EXO</td>
+                  <th scope="row" data-label="Stream">Workcell views</th>
+                  <td data-label="Signals">2 to 6 calibrated cameras</td>
+                  <td data-label="Annotation">Multi view 3D, scene layout</td>
+                  <td data-label="Rate">30 fps</td>
+                  <td data-label="Format">MP4 + calib</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- USES -->
+      <section class="section section-rule" id="uses" aria-labelledby="uses-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>06</span> Uses</p>
+            <div class="split-main uses-head">
+              <h2 id="uses-title" class="h2" data-reveal>Who trains on <em>avcon</em> data.</h2>
+              <div class="carousel-controls" data-reveal>
+                <button class="icon-btn" type="button" data-carousel-prev aria-label="Previous use case">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M15 10H5M9 6l-4 4 4 4" /></svg>
+                </button>
+                <button class="icon-btn" type="button" data-carousel-next aria-label="Next use case">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="carousel" data-carousel aria-label="Use cases" tabindex="0">
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <circle cx="60" cy="40" r="28" class="faint" />
+              <ellipse cx="60" cy="40" rx="28" ry="10" />
+              <ellipse cx="60" cy="40" rx="10" ry="28" class="faint" />
+              <circle cx="76" cy="30" r="4" class="accent" />
+            </svg>
+            <p class="mono use-index">A · World models</p>
+            <h3 class="h3">World models</h3>
+            <p>First person video of real work, so models learn how objects respond to hands, tools and force.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <path d="M20 70V44l16-10 14 8" />
+              <path d="M50 42l14-14 10 4" />
+              <circle cx="36" cy="34" r="3" /><circle cx="50" cy="42" r="3" /><circle cx="64" cy="28" r="3" />
+              <path d="M74 32l10-6M74 32l12 2M74 32l8 8" class="accent-stroke" />
+              <path d="M8 70h104" class="faint" />
+            </svg>
+            <p class="mono use-index">B · Manipulation</p>
+            <h3 class="h3">Robot manipulation policies</h3>
+            <p>Hand pose, grasp and force labels for imitation learning and pretraining dexterous arms.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <rect x="8" y="14" width="44" height="24" rx="3" class="faint" />
+              <path d="M16 24h28M16 30h18" />
+              <path d="M52 26h14" class="faint dashed" />
+              <path d="M70 60l12-24 12 10 14-22" class="accent-stroke" />
+            </svg>
+            <p class="mono use-index">C · VLA</p>
+            <h3 class="h3">Vision language action models</h3>
+            <p>Narrated, segmented tasks that tie words like "seat the connector" to the exact motion.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <circle cx="60" cy="14" r="8" />
+              <path d="M60 22v26M60 30l-18 12M60 30l18 12M60 48l-10 24M60 48l10 24" />
+              <circle cx="42" cy="42" r="3" class="accent" /><circle cx="78" cy="42" r="3" class="accent" />
+            </svg>
+            <p class="mono use-index">D · Humanoids</p>
+            <h3 class="h3">Humanoid robots</h3>
+            <p>Full upper body motion, bimanual hand pose and gaze for humanoids working in human spaces.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <circle cx="60" cy="40" r="30" class="faint" />
+              <circle cx="60" cy="40" r="18" />
+              <circle cx="60" cy="40" r="5" class="accent" />
+              <path d="M60 4v12M60 64v12M24 40h12M84 40h12" class="faint" />
+            </svg>
+            <p class="mono use-index">E · Evaluation</p>
+            <h3 class="h3">Benchmarks</h3>
+            <p>Held out task suites that are never published, to test robot models on work they have not seen.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <rect x="10" y="12" width="100" height="56" rx="2" class="faint" />
+              <rect x="30" y="24" width="28" height="22" class="accent-stroke" />
+              <rect x="66" y="30" width="24" height="26" />
+              <path d="M30 20h20" />
+            </svg>
+            <p class="mono use-index">F · Industrial vision</p>
+            <h3 class="h3">Step verification</h3>
+            <p>Train systems that check each assembly step and catch mistakes on real production lines.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- PROCESS -->
+      <section class="section section-rule" id="process" aria-labelledby="process-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>07</span> Process</p>
+          <div class="split-main">
+            <h2 id="process-title" class="h2" data-reveal>From a task description <em>to a training set.</em></h2>
+
+            <div class="process">
+              <ol class="steps">
+                <li data-reveal>
+                  <span class="mono step-n">01</span>
+                  <div>
+                    <h3 class="h4">Scope</h3>
+                    <p>You tell us the task, the environment and the streams you need. We agree a label spec and volume.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">02</span>
+                  <div>
+                    <h3 class="h4">Sample</h3>
+                    <p>We send annotated sample clips first, so your team can judge the data before committing.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">03</span>
+                  <div>
+                    <h3 class="h4">Capture</h3>
+                    <p>Skilled operators are fitted and calibrated, then recorded doing real work in our partner sites or your facility.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">04</span>
+                  <div>
+                    <h3 class="h4">Annotate</h3>
+                    <p>Two pass labelling, expert sign off and stream level QC on every clip.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">05</span>
+                  <div>
+                    <h3 class="h4">Deliver</h3>
+                    <p>Batches with a data card, shipped to your bucket or pulled from our API on your schedule.</p>
+                  </div>
+                </li>
+              </ol>
+
+              <div class="log-panel" data-reveal>
+                <div class="log-head mono">
+                  <span><i class="live-dot"></i>Capture log</span>
+                  <span>stdout</span>
+                </div>
+                <ol class="log mono" data-log aria-hidden="true"></ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRUST -->
+      <section class="section section-rule ethos" id="trust" aria-labelledby="trust-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>08</span> Trust</p>
+          <div class="split-main">
+            <h2 id="trust-title" class="h2" data-reveal>
+              Built on people. <em>Handled with care.</em>
+            </h2>
+            <p class="section-intro" data-reveal>
+              Our data comes from real workers in real workplaces. These are the rules we keep with them and with you.
+            </p>
+            <ul class="principles">
+              <li data-reveal>
+                <span class="mono">I</span>
+                <h3 class="h4">Consent and fair pay</h3>
+                <p>Every operator opts in, understands how the data is used and is paid for every hour they wear the rig.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">II</span>
+                <h3 class="h4">Privacy by default</h3>
+                <p>Faces, screens, badges and documents are blurred before data leaves our pipeline.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">III</span>
+                <h3 class="h4">Your IP stays yours</h3>
+                <p>Custom datasets are exclusive. Capture in your facility runs under NDA and is never reused.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">IV</span>
+                <h3 class="h4">Secure chain of custody</h3>
+                <p>Encrypted on the device, audited access in the pipeline, delivered only to the accounts you name.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta" id="request" aria-labelledby="cta-title">
+        <svg class="cta-rings" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+          <path d="M400 60c190 0 330 130 330 330 0 210-150 350-340 350C200 740 70 600 70 410 70 210 210 60 400 60Z" />
+          <path d="M405 140c140 0 250 100 248 260-2 160-120 270-262 266C250 662 150 560 152 410c2-150 108-270 253-270Z" />
+          <path d="M396 230c100-4 172 72 172 170 0 104-74 176-170 176s-166-72-166-172c0-96 66-170 164-174Z" />
+          <path d="M402 320c50-2 84 34 84 82s-34 84-84 84-84-36-84-84c0-46 34-80 84-82Z" />
+        </svg>
+        <div class="container cta-inner">
+          <p class="eyebrow mono" data-reveal>Start here</p>
+          <h2 id="cta-title" class="display display-md" data-reveal>Start with a <em>sample.</em></h2>
+          <p class="lede" data-reveal>
+            Tell us the task and the environment. We will send annotated sample clips with every stream and a data
+            card, so your team can judge the data before anything else.
+          </p>
+          <div data-reveal>
+            <button class="btn btn-solid btn-lg" type="button" data-open-sample>
+              Request a sample
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-stamp mono">
+          <p class="footer-name">avcon Technologies</p>
+          <p>Data for machines that work with their hands.</p>
+        </div>
+        <nav class="footer-nav mono" aria-label="Footer">
+          <a href="#rig">Rig</a>
+          <a href="#domains">Domains</a>
+          <a href="#annotation">Annotation</a>
+          <a href="mailto:outreach.pra@gmail.com">outreach.pra@gmail.com</a>
+        </nav>
+        <p class="footer-legal mono">© <span data-year>2026</span> avcon Technologies. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- REQUEST SAMPLE DIALOG -->
+    <dialog class="sample-dialog" id="sample-dialog" aria-labelledby="sample-title" data-sample-dialog>
+      <div class="dialog-card">
+        <div class="dialog-head">
+          <div>
+            <p class="mono eyebrow">Sample request</p>
+            <h2 id="sample-title" class="h3">Get annotated sample clips</h2>
+          </div>
+          <button class="icon-btn" type="button" data-close-sample aria-label="Close">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" /></svg>
+          </button>
+        </div>
+
+        <!--
+          Submissions are emailed to outreach.pra@gmail.com through FormSubmit
+          (https://formsubmit.co). The first submission sends an activation email
+          to that inbox; click "Activate Form" once and every request after that
+          is delivered. Clear data-endpoint to fall back to opening the visitor's
+          email app instead.
+        -->
+        <form
+          class="sample-form"
+          novalidate
+          data-sample-form
+          data-endpoint="https://formsubmit.co/ajax/outreach.pra@gmail.com"
+          data-mailto="outreach.pra@gmail.com"
+        >
+          <div class="field">
+            <label for="f-name">Full name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err" />
+            <p class="field-error" id="f-name-err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-email">Work email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-err" />
+            <p class="field-error" id="f-email-err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-company">Company</label>
+            <input id="f-company" name="company" type="text" autocomplete="organization" required aria-describedby="f-company-err" />
+            <p class="field-error" id="f-company-err" aria-live="polite"></p>
+          </div>
+
+          <fieldset class="field">
+            <legend>Domains you need <span class="optional">optional</span></legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="domain" value="Drone repair" /><span>Drone repair</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Manufacturing" /><span>Manufacturing</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Electronics" /><span>Electronics</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Automotive" /><span>Automotive</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Logistics" /><span>Logistics</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Kitchens" /><span>Kitchens</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Household" /><span>Household</span></label>
+              <label class="chip"><input type="checkbox" name="domain" value="Custom" /><span>Custom</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="f-msg">What should your robots learn? <span class="optional">optional</span></label>
+            <textarea id="f-msg" name="message" rows="3" placeholder="The task, in a sentence or two."></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="f-website">Leave this empty</label>
+            <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="form-foot">
+            <p class="mono fine">We only use these details to reply to you.</p>
+            <button class="btn btn-solid" type="submit" data-submit>
+              <span data-submit-label>Send request</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+            </button>
+          </div>
+          <p class="form-status" role="status" data-form-status></p>
+        </form>
+
+        <div class="form-success" data-form-success hidden tabindex="-1">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <circle cx="24" cy="24" r="21" />
+            <circle cx="24" cy="24" r="14" class="faint" />
+            <path d="M16 24.5l5.5 5.5L33 18.5" />
+          </svg>
+          <h3 class="h3">Request received.</h3>
+          <p data-success-msg>We will reply with annotated sample clips and a few questions about your task.</p>
+          <button class="btn btn-ghost" type="button" data-close-sample>Close</button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>
