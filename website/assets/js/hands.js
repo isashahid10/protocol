@@ -28,7 +28,7 @@ export const BONES = [
 ];
 const TIPS = new Set([4, 8, 12, 16, 20]);
 
-function handPose(curl, thumbCurl) {
+export function handPose(curl, thumbCurl) {
   const pts = [[0, 0]];
   FINGERS.thumb.forEach(([x, y], i) => {
     const k = thumbCurl * THUMB_K[i];
@@ -45,7 +45,7 @@ function handPose(curl, thumbCurl) {
   return pts;
 }
 
-function place(pts, { x, y, rot, scale, mirror }) {
+export function place(pts, { x, y, rot, scale, mirror }) {
   const c = Math.cos(rot);
   const s = Math.sin(rot);
   return pts.map(([px, py]) => {
