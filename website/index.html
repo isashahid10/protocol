@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>avcon Technologies: Ground Truth for a Living Planet</title>
+    <meta
+      name="description"
+      content="avcon Technologies collects ecocentric, ground truth environmental data. Soil, water, air, canopy and bioacoustic datasets for climate, agriculture and earth AI models."
+    />
+    <link rel="canonical" href="https://avcontechnologies.com/" />
+    <meta name="theme-color" content="#0E120F" />
+    <meta name="color-scheme" content="dark light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="avcon Technologies" />
+    <meta property="og:title" content="avcon Technologies: Ground Truth for a Living Planet" />
+    <meta
+      property="og:description"
+      content="Ecocentric environmental datasets, recorded in the field. Soil, water, air, canopy and sound, synchronised to the second."
+    />
+    <meta property="og:url" content="https://avcontechnologies.com/" />
+    <meta property="og:image" content="https://avcontechnologies.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="avcon Technologies. Topographic contour lines with tracked field stations." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <script>
+      /* Apply saved theme and JS flag before first paint to avoid a flash. */
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("avcon-theme");
+          if (t === "light" || t === "dark") d.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" src="assets/js/main.js"></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "avcon Technologies",
+        "url": "https://avcontechnologies.com/",
+        "logo": "https://avcontechnologies.com/favicon.svg",
+        "email": "hello@avcontechnologies.com",
+        "description": "avcon Technologies collects ecocentric, ground truth environmental data for climate, agriculture and earth AI models."
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="avcon Technologies home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path d="M16 3.5c7.4 0 12.5 4.9 12.5 12 0 7.6-5.6 13-12.8 13C8.4 28.5 3.5 23.3 3.5 16 3.5 8.6 8.8 3.5 16 3.5Z" />
+            <path d="M16.4 8.3c4.6 0 7.6 3.3 7.4 7.8-.2 4.6-3.6 7.6-8 7.4-4.3-.2-7.4-3.3-7.3-7.7.1-4.5 3.4-7.5 7.9-7.5Z" />
+            <path d="M15.8 12.6c2.1-.1 3.6 1.4 3.6 3.4 0 2.1-1.5 3.5-3.5 3.5s-3.4-1.5-3.4-3.5c0-1.9 1.3-3.3 3.3-3.4Z" />
+            <circle cx="16" cy="16" r="1.4" class="brand-dot" />
+          </svg>
+          <span class="brand-word">avcon</span>
+          <span class="brand-sub">Technologies</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <ul>
+            <li><a href="#context">Context</a></li>
+            <li><a href="#station">Station</a></li>
+            <li><a href="#catalog">Catalog</a></li>
+            <li><a href="#uses">Uses</a></li>
+            <li><a href="#ethos">Ethos</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to light theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="8.5" />
+              <path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" class="fill" />
+            </svg>
+          </button>
+          <button class="btn btn-solid btn-sm" type="button" data-open-sample>
+            Request sample
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- HERO -->
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <canvas class="hero-canvas" data-field aria-hidden="true"></canvas>
+        <div class="hero-grain" aria-hidden="true"></div>
+
+        <div class="container hero-inner">
+          <div class="hero-meta mono" aria-hidden="true">
+            <span><i class="live-dot"></i>Live field</span>
+            <span data-clock>00:00:00 UTC</span>
+            <span>Contour interval 0.12</span>
+          </div>
+
+          <div class="hero-copy">
+            <p class="eyebrow mono">Ecocentric data collection</p>
+            <h1 id="hero-title" class="display">
+              Ground truth for a <em>living</em> planet.
+            </h1>
+            <p class="lede">
+              avcon Technologies puts calibrated instruments into soil, water, air and canopy, then turns what
+              they hear into the datasets that climate, agriculture and earth models learn from.
+            </p>
+            <div class="hero-cta">
+              <button class="btn btn-solid" type="button" data-open-sample>
+                Request a sample
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+              </button>
+              <a class="btn btn-ghost" href="#station">See the station</a>
+            </div>
+          </div>
+        </div>
+
+        <a class="scroll-cue mono" href="#context" aria-label="Scroll to content">
+          <span>Scroll</span>
+          <svg viewBox="0 0 16 28" aria-hidden="true" focusable="false"><path d="M8 2v22M2 18l6 6 6-6" /></svg>
+        </a>
+      </section>
+
+      <!-- TICKER -->
+      <div class="ticker mono" aria-hidden="true">
+        <div class="ticker-track">
+          <ul>
+            <li>SOL-214 · VWC 30cm 27.8%</li>
+            <li>H2O-118 · NO₃ 2.1 mg/L</li>
+            <li>BIO-071 · 23 species tagged at dawn</li>
+            <li>AIR-302 · PM2.5 38 µg/m³</li>
+            <li>MET-009 · Gust 14.2 m/s NNW</li>
+            <li>CAN-044 · NDVI 0.81</li>
+            <li>SOL-207 · Soil temp 10cm 18.4°C</li>
+            <li>H2O-131 · DO 7.9 mg/L</li>
+            <li>MET-016 · Rain 4.6 mm in 20 min</li>
+            <li>BIO-088 · Bat pass 41 kHz</li>
+          </ul>
+          <ul>
+            <li>SOL-214 · VWC 30cm 27.8%</li>
+            <li>H2O-118 · NO₃ 2.1 mg/L</li>
+            <li>BIO-071 · 23 species tagged at dawn</li>
+            <li>AIR-302 · PM2.5 38 µg/m³</li>
+            <li>MET-009 · Gust 14.2 m/s NNW</li>
+            <li>CAN-044 · NDVI 0.81</li>
+            <li>SOL-207 · Soil temp 10cm 18.4°C</li>
+            <li>H2O-131 · DO 7.9 mg/L</li>
+            <li>MET-016 · Rain 4.6 mm in 20 min</li>
+            <li>BIO-088 · Bat pass 41 kHz</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CONTEXT -->
+      <section class="section" id="context" aria-labelledby="context-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>01</span> Context</p>
+          <div class="split-main">
+            <h2 id="context-title" class="h2" data-reveal>
+              Satellites see the surface. <em>We measure what is underneath.</em>
+            </h2>
+            <div class="two-col" data-reveal>
+              <p>
+                Earth observation gives you pixels. It does not give you soil moisture at 30 cm, the nitrate load
+                in a river after a storm, or the dawn chorus in a forest that is coming back. That gap is where
+                environmental models drift.
+              </p>
+              <p>
+                We close it the slow way. Instruments in the ground, calibrated against reference standards,
+                recording every minute through every season. The result is labelled, gap checked and ready to
+                train on.
+              </p>
+            </div>
+
+            <dl class="facts" data-reveal>
+              <div>
+                <dt class="mono">Signals per station</dt>
+                <dd>40<span>+</span></dd>
+              </div>
+              <div>
+                <dt class="mono">Time sync</dt>
+                <dd>±1<span>ms</span></dd>
+              </div>
+              <div>
+                <dt class="mono">Typical cadence</dt>
+                <dd>1<span>min</span></dd>
+              </div>
+              <div>
+                <dt class="mono">Power</dt>
+                <dd>100<span>% solar</span></dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATION -->
+      <section class="section section-rule" id="station" aria-labelledby="station-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>02</span> Instruments</p>
+            <div class="split-main">
+              <h2 id="station-title" class="h2" data-reveal>One station. <em>Nine senses.</em></h2>
+              <p class="section-intro" data-reveal>
+                Every avcon field station is a self powered lab that reads the air above it, the ground beneath it
+                and the life around it. Select a sensor to see what it records.
+              </p>
+            </div>
+          </div>
+
+          <div class="station" data-station>
+            <figure class="station-figure" data-reveal>
+              <svg
+                class="station-svg"
+                viewBox="0 0 640 680"
+                role="img"
+                aria-labelledby="station-svg-title"
+              >
+                <title id="station-svg-title">
+                  Line drawing of an avcon field station: a mast with wind, light, camera, air and sound sensors, a
+                  rain gauge, a soil probe at three depths and a water sonde in a pond beside a tree.
+                </title>
+
+                <!-- ground and soil -->
+                <g class="st-ground">
+                  <path d="M0 440H20C40 440 46 486 100 486C154 486 160 440 180 440H640" />
+                  <path class="st-layer" d="M190 500H640M0 500H24" />
+                  <path class="st-layer" d="M0 560H640" />
+                  <path class="st-layer" d="M0 620H640" />
+                  <g class="st-faint">
+                    <text x="612" y="496" text-anchor="end">10 cm</text>
+                    <text x="612" y="556" text-anchor="end">30 cm</text>
+                    <text x="612" y="616" text-anchor="end">60 cm</text>
+                  </g>
+                  <path
+                    class="st-grass"
+                    d="M200 440l-3-9M203 440v-11M206 440l3-8M250 440l-3-8M253 440v-10M256 440l3-7M420 440l-3-9M423 440v-11M426 440l3-8M600 440l-3-8M603 440v-12M606 440l3-8M470 440l-2-7M473 440v-9"
+                  />
+                  <!-- roots -->
+                  <path
+                    class="st-faint-stroke"
+                    d="M538 440C534 470 512 492 488 512M542 440C548 478 574 500 600 520M540 440C540 488 532 530 520 572M520 470C506 474 494 470 482 478M560 470C574 468 588 474 602 470M528 520C514 528 504 540 498 556"
+                  />
+                </g>
+
+                <!-- tree with contour canopy -->
+                <g class="st-tree">
+                  <path d="M536 440L538 318M544 440L542 318M539 360L512 330M541 346L566 318" />
+                  <ellipse cx="540" cy="250" rx="72" ry="80" />
+                  <ellipse cx="538" cy="246" rx="50" ry="57" transform="rotate(-10 538 246)" />
+                  <ellipse cx="542" cy="240" rx="27" ry="32" transform="rotate(12 542 240)" />
+                </g>
+
+                <!-- guy wires -->
+                <path class="st-dash" d="M320 150L230 440M320 150L410 440" />
+
+                <!-- pond -->
+                <g class="st-part" data-part="8">
+                  <path class="st-water" d="M30 452q10-4 20 0t20 0 20 0 20 0 20 0 20 0 20 0" />
+                  <path class="st-water st-faint-stroke" d="M44 464q10-3 20 0t20 0 20 0 20 0 20 0" />
+                  <ellipse cx="110" cy="451" rx="9" ry="3.5" />
+                  <path d="M110 454.5V470" />
+                  <rect x="105" y="470" width="10" height="15" rx="5" />
+                </g>
+
+                <!-- mast -->
+                <path class="st-mast" d="M320 96V440" />
+                <path d="M304 440L312 428H328L336 440" />
+
+                <!-- 1 wind -->
+                <g class="st-part" data-part="1">
+                  <path class="st-arm" d="M236 120H404" />
+                  <path d="M248 120V92" />
+                  <g class="st-rotor">
+                    <circle cx="248" cy="88" r="3" />
+                    <g><path d="M248 88H266" /><path d="M266 83a5 5 0 0 1 0 10" /></g>
+                    <g transform="rotate(120 248 88)"><path d="M248 88H266" /><path d="M266 83a5 5 0 0 1 0 10" /></g>
+                    <g transform="rotate(240 248 88)"><path d="M248 88H266" /><path d="M266 83a5 5 0 0 1 0 10" /></g>
+                  </g>
+                  <path d="M392 120V96M372 96H414M372 96l8-5M372 96l8 5M406 88l14 8-14 8Z" />
+                </g>
+
+                <!-- 2 pyranometer -->
+                <g class="st-part" data-part="2">
+                  <path d="M306 96H334" />
+                  <path d="M311 96a9 9 0 0 1 18 0" />
+                  <path d="M320 90.5v.1" class="st-dot" />
+                </g>
+
+                <!-- 3 camera -->
+                <g class="st-part" data-part="3">
+                  <path d="M320 176H340" />
+                  <rect x="340" y="164" width="34" height="22" rx="2" />
+                  <rect x="374" y="169" width="8" height="12" rx="1" />
+                  <path class="st-dash st-fov" d="M384 175L470 150M384 175L470 214" />
+                </g>
+
+                <!-- 4 air quality shield -->
+                <g class="st-part" data-part="4">
+                  <path d="M320 218H296" />
+                  <path d="M283 196V238" />
+                  <path d="M266 200H300M268 207H298M268 214H298M268 221H298M268 228H298M266 235H300" />
+                </g>
+
+                <!-- solar -->
+                <g class="st-solar">
+                  <path d="M320 292H300" />
+                  <path d="M300 272L232 252L222 302L292 322Z" />
+                  <path d="M266 262L257 312M248 257L239 307M296 297L227 277" />
+                  <text x="214" y="246" text-anchor="end" class="st-faint">20 W SOLAR</text>
+                </g>
+
+                <!-- 9 logger -->
+                <g class="st-part" data-part="9">
+                  <rect x="330" y="280" width="52" height="70" rx="3" />
+                  <path d="M338 296H360M338 304H352" />
+                  <circle cx="372" cy="336" r="3" />
+                  <path d="M374 280V238" />
+                  <circle cx="374" cy="235" r="2.5" />
+                  <g class="st-signal">
+                    <path d="M382 228a12 12 0 0 1 0 14" />
+                    <path d="M388 222a20 20 0 0 1 0 26" />
+                  </g>
+                  <path class="st-cable" d="M352 440C352 410 360 380 360 350" />
+                </g>
+
+                <!-- 5 acoustic -->
+                <g class="st-part" data-part="5">
+                  <path d="M320 384H300" />
+                  <rect x="286" y="378" width="14" height="12" rx="1" />
+                  <circle class="st-fuzz" cx="278" cy="384" r="9" />
+                  <g class="st-waves">
+                    <path d="M260 374a14 14 0 0 0 0 20" />
+                    <path d="M252 368a22 22 0 0 0 0 32" />
+                  </g>
+                </g>
+
+                <!-- 6 rain gauge -->
+                <g class="st-part" data-part="6">
+                  <path d="M450 440V400M440 440h20" />
+                  <rect x="440" y="374" width="20" height="26" rx="1" />
+                  <path d="M436 374H464L456 366H444Z" />
+                </g>
+
+                <!-- 7 soil probe -->
+                <g class="st-part" data-part="7">
+                  <path class="st-probe" d="M352 440V636" />
+                  <rect x="346" y="496" width="12" height="8" rx="1" />
+                  <rect x="346" y="556" width="12" height="8" rx="1" />
+                  <rect x="346" y="616" width="12" height="8" rx="1" />
+                </g>
+
+                <!-- hotspots -->
+                <g class="hotspots">
+                  <g class="hs" data-hs="1" transform="translate(212 66)"><path class="hs-lead" d="M8 8L28 18" /><circle r="11" /><text y="4">1</text></g>
+                  <g class="hs" data-hs="2" transform="translate(320 50)"><path class="hs-lead" d="M0 11V36" /><circle r="11" /><text y="4">2</text></g>
+                  <g class="hs" data-hs="3" transform="translate(356 136)"><path class="hs-lead" d="M0 11V27" /><circle r="11" /><text y="4">3</text></g>
+                  <g class="hs" data-hs="4" transform="translate(240 184)"><path class="hs-lead" d="M8 8L26 18" /><circle r="11" /><text y="4">4</text></g>
+                  <g class="hs" data-hs="5" transform="translate(236 344)"><path class="hs-lead" d="M8 8L36 32" /><circle r="11" /><text y="4">5</text></g>
+                  <g class="hs" data-hs="6" transform="translate(492 360)"><path class="hs-lead" d="M-11 2L-30 16" /><circle r="11" /><text y="4">6</text></g>
+                  <g class="hs" data-hs="7" transform="translate(400 560)"><path class="hs-lead" d="M-11 0H-40" /><circle r="11" /><text y="4">7</text></g>
+                  <g class="hs" data-hs="8" transform="translate(60 528)"><path class="hs-lead" d="M8 -8L44 -46" /><circle r="11" /><text y="4">8</text></g>
+                  <g class="hs" data-hs="9" transform="translate(420 306)"><path class="hs-lead" d="M-11 0H-36" /><circle r="11" /><text y="4">9</text></g>
+                </g>
+              </svg>
+              <figcaption class="mono">Fig. 1 · avcon field station, standard build</figcaption>
+            </figure>
+
+            <div class="station-panel" data-reveal>
+              <ol class="sensor-list" aria-label="Station sensors">
+                <li><button type="button" data-sensor="1" aria-controls="sensor-detail"><span class="mono">01</span>Wind</button></li>
+                <li><button type="button" data-sensor="2" aria-controls="sensor-detail"><span class="mono">02</span>Sunlight</button></li>
+                <li><button type="button" data-sensor="3" aria-controls="sensor-detail"><span class="mono">03</span>Canopy camera</button></li>
+                <li><button type="button" data-sensor="4" aria-controls="sensor-detail"><span class="mono">04</span>Air quality</button></li>
+                <li><button type="button" data-sensor="5" aria-controls="sensor-detail"><span class="mono">05</span>Bioacoustics</button></li>
+                <li><button type="button" data-sensor="6" aria-controls="sensor-detail"><span class="mono">06</span>Rainfall</button></li>
+                <li><button type="button" data-sensor="7" aria-controls="sensor-detail"><span class="mono">07</span>Soil profile</button></li>
+                <li><button type="button" data-sensor="8" aria-controls="sensor-detail"><span class="mono">08</span>Water sonde</button></li>
+                <li><button type="button" data-sensor="9" aria-controls="sensor-detail"><span class="mono">09</span>Logger and uplink</button></li>
+              </ol>
+
+              <article class="sensor-detail" id="sensor-detail" aria-live="polite">
+                <p class="mono sensor-kicker" data-detail-kicker>Sensor 01</p>
+                <h3 class="h3" data-detail-title>Wind</h3>
+                <p data-detail-body>Ultrasonic anemometer and vane at 3 m. Speed, gusts and direction for micrometeorology and spray drift models.</p>
+                <dl class="spec" data-detail-spec>
+                  <div><dt>Signals</dt><dd>Speed, gust, direction</dd></div>
+                  <div><dt>Cadence</dt><dd>1 Hz</dd></div>
+                  <div><dt>Accuracy</dt><dd>±0.1 m/s</dd></div>
+                </dl>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATALOG -->
+      <section class="section section-rule" id="catalog" aria-labelledby="catalog-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>03</span> Catalog</p>
+            <div class="split-main">
+              <h2 id="catalog-title" class="h2" data-reveal>Six modalities. <em>One timeline.</em></h2>
+              <p class="section-intro" data-reveal>
+                Every stream is stamped against GPS time. When a storm rolls through, you see it land in the rain
+                gauge, sink into the soil, lift the river and quiet the frogs, all on the same clock.
+              </p>
+            </div>
+          </div>
+
+          <div class="table-wrap" data-reveal>
+            <table class="catalog mono">
+              <caption class="visually-hidden">avcon dataset modalities with signals, cadence and delivery formats</caption>
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Modality</th>
+                  <th scope="col">Signals</th>
+                  <th scope="col">Cadence</th>
+                  <th scope="col">Format</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="ID">AIR</td>
+                  <th scope="row" data-label="Modality">Atmosphere</th>
+                  <td data-label="Signals">PM1, PM2.5, PM10, NO₂, O₃, CO₂, VOCs</td>
+                  <td data-label="Cadence">1 min</td>
+                  <td data-label="Format">Parquet</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">SOL</td>
+                  <th scope="row" data-label="Modality">Soil</th>
+                  <td data-label="Signals">Moisture, temperature, EC at 10, 30, 60 cm</td>
+                  <td data-label="Cadence">15 min</td>
+                  <td data-label="Format">Parquet</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">H2O</td>
+                  <th scope="row" data-label="Modality">Hydrology</th>
+                  <td data-label="Signals">pH, dissolved oxygen, turbidity, nitrate, level</td>
+                  <td data-label="Cadence">5 min</td>
+                  <td data-label="Format">NetCDF</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">BIO</td>
+                  <th scope="row" data-label="Modality">Bioacoustics</th>
+                  <td data-label="Signals">48 kHz audio, species and event labels</td>
+                  <td data-label="Cadence">Continuous</td>
+                  <td data-label="Format">FLAC + JSON</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">CAN</td>
+                  <th scope="row" data-label="Modality">Canopy imagery</th>
+                  <td data-label="Signals">RGB, near infrared, NDVI, phenology stage</td>
+                  <td data-label="Cadence">10 min</td>
+                  <td data-label="Format">Cloud GeoTIFF</td>
+                </tr>
+                <tr>
+                  <td data-label="ID">MET</td>
+                  <th scope="row" data-label="Modality">Micrometeorology</th>
+                  <td data-label="Signals">Wind, irradiance, rain, temperature, humidity</td>
+                  <td data-label="Cadence">1 s to 1 min</td>
+                  <td data-label="Format">NetCDF</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- USES -->
+      <section class="section section-rule" id="uses" aria-labelledby="uses-title">
+        <div class="container">
+          <div class="split split-head">
+            <p class="section-label mono" data-reveal><span>04</span> Uses</p>
+            <div class="split-main uses-head">
+              <h2 id="uses-title" class="h2" data-reveal>Who trains on <em>avcon</em> data.</h2>
+              <div class="carousel-controls" data-reveal>
+                <button class="icon-btn" type="button" data-carousel-prev aria-label="Previous use case">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M15 10H5M9 6l-4 4 4 4" /></svg>
+                </button>
+                <button class="icon-btn" type="button" data-carousel-next aria-label="Next use case">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="carousel" data-carousel aria-label="Use cases" tabindex="0">
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <path d="M4 52C24 30 40 30 60 44S96 60 116 32" />
+              <path d="M4 64C24 44 42 44 60 56S96 70 116 46" class="faint" />
+              <path d="M4 40C24 18 40 18 60 32S96 48 116 20" class="faint" />
+              <circle cx="60" cy="44" r="4" class="accent" />
+            </svg>
+            <p class="mono use-index">A · Climate</p>
+            <h3 class="h3">Weather and climate models</h3>
+            <p>Station grade observations to downscale gridded forecasts, correct bias and validate reanalysis where the network is thin.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <path d="M8 70L40 10M28 70L52 10M48 70L64 10M68 70L76 10M88 70L88 10" class="faint" />
+              <path d="M4 70H116" />
+              <path d="M58 40c6-10 16-12 22-10-2 8-10 14-22 10Zm0 0c-2-8-8-12-16-12 0 8 6 12 16 12Z" class="accent-stroke" />
+            </svg>
+            <p class="mono use-index">B · Agriculture</p>
+            <h3 class="h3">Precision agriculture</h3>
+            <p>Soil and canopy truth for yield, irrigation scheduling and early disease detection. Labelled by agronomists, not guessed.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <rect x="10" y="12" width="100" height="56" rx="2" class="faint" />
+              <path d="M10 50L34 38L52 44L74 26L94 32L110 18" />
+              <path d="M74 26V68" class="faint dashed" />
+              <circle cx="74" cy="26" r="4" class="accent" />
+            </svg>
+            <p class="mono use-index">C · MRV</p>
+            <h3 class="h3">Carbon and nature MRV</h3>
+            <p>Defensible measurement, reporting and verification for carbon, water and biodiversity outcomes, with an audit trail per reading.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <path d="M8 40h4M16 34v12M22 26v28M28 32v16M34 20v40M40 30v20M46 36v8M52 28v24M58 16v48M64 24v32M70 34v12M76 30v20M82 38v4M88 32v16M94 36v8M100 40h4" />
+              <rect x="50" y="12" width="20" height="56" class="accent-stroke" />
+            </svg>
+            <p class="mono use-index">D · Biodiversity</p>
+            <h3 class="h3">Species detection AI</h3>
+            <p>Thousands of hours of labelled field audio and camera frames, covering birds, bats, amphibians, insects and the machines that disturb them.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <circle cx="60" cy="40" r="30" class="faint" />
+              <circle cx="60" cy="40" r="18" />
+              <circle cx="60" cy="40" r="5" class="accent" />
+              <path d="M60 4v12M60 64v12M24 40h12M84 40h12" class="faint" />
+            </svg>
+            <p class="mono use-index">E · Evaluation</p>
+            <h3 class="h3">Benchmarks for earth models</h3>
+            <p>Held out field data, never published, to test geospatial foundation models against what really happened on the ground.</p>
+          </li>
+          <li class="use-card">
+            <svg class="use-glyph" viewBox="0 0 120 80" aria-hidden="true" focusable="false">
+              <path d="M12 66V30l24-14 24 14v36" />
+              <path d="M60 66V22l24-10 24 10v44" class="faint" />
+              <path d="M4 66h112" />
+              <path d="M30 44h12v22H30z" class="accent-stroke" />
+            </svg>
+            <p class="mono use-index">F · Cities</p>
+            <h3 class="h3">Urban heat and air</h3>
+            <p>Street level temperature and pollution at block resolution for heat action plans, insurers and city digital twins.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- PROCESS -->
+      <section class="section section-rule" id="process" aria-labelledby="process-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>05</span> Field to model</p>
+          <div class="split-main">
+            <h2 id="process-title" class="h2" data-reveal>From a patch of ground <em>to a training set.</em></h2>
+
+            <div class="process">
+              <ol class="steps">
+                <li data-reveal>
+                  <span class="mono step-n">01</span>
+                  <div>
+                    <h3 class="h4">Survey</h3>
+                    <p>We pick sites with landholders and local partners, map the terrain and agree what is measured and who owns it.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">02</span>
+                  <div>
+                    <h3 class="h4">Deploy</h3>
+                    <p>Stations go in within a day. Sensors are bench calibrated before they leave and checked against reference units on site.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">03</span>
+                  <div>
+                    <h3 class="h4">Record</h3>
+                    <p>Every channel is time synced and logged at the edge, then sent home over LoRa, cellular or satellite.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">04</span>
+                  <div>
+                    <h3 class="h4">Verify</h3>
+                    <p>Drift correction, outlier flags and gap reports run on every batch. Experts label audio, imagery and events.</p>
+                  </div>
+                </li>
+                <li data-reveal>
+                  <span class="mono step-n">05</span>
+                  <div>
+                    <h3 class="h4">Deliver</h3>
+                    <p>Clean tables, raw streams and a data card, shipped to your bucket or pulled from our API on your schedule.</p>
+                  </div>
+                </li>
+              </ol>
+
+              <div class="log-panel" data-reveal>
+                <div class="log-head mono">
+                  <span><i class="live-dot"></i>Field log</span>
+                  <span>stdout</span>
+                </div>
+                <ol class="log mono" data-log aria-hidden="true"></ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ETHOS -->
+      <section class="section section-rule ethos" id="ethos" aria-labelledby="ethos-title">
+        <div class="container split">
+          <p class="section-label mono" data-reveal><span>06</span> Ethos</p>
+          <div class="split-main">
+            <h2 id="ethos-title" class="h2" data-reveal>
+              Ecocentric means the land <em>comes first.</em>
+            </h2>
+            <p class="section-intro" data-reveal>
+              We measure a place without taking from it. These are not slogans, they are rules our field teams work by.
+            </p>
+            <ul class="principles">
+              <li data-reveal>
+                <span class="mono">I</span>
+                <h3 class="h4">Light footprint</h3>
+                <p>Solar powered, no concrete footings where we can avoid it, and a site left as we found it when a deployment ends.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">II</span>
+                <h3 class="h4">Hardware comes home</h3>
+                <p>Stations are built to be recovered, repaired and redeployed. Batteries and boards go back into the loop, not into the ground.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">III</span>
+                <h3 class="h4">Consent from the ground up</h3>
+                <p>Landholders and communities are paid partners. They see their own data, and sensitive species locations are never published.</p>
+              </li>
+              <li data-reveal>
+                <span class="mono">IV</span>
+                <h3 class="h4">An open baseline</h3>
+                <p>A share of every network is released for public research, so the people protecting a place can use what we learn there.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta" id="request" aria-labelledby="cta-title">
+        <svg class="cta-rings" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+          <path d="M400 60c190 0 330 130 330 330 0 210-150 350-340 350C200 740 70 600 70 410 70 210 210 60 400 60Z" />
+          <path d="M405 140c140 0 250 100 248 260-2 160-120 270-262 266C250 662 150 560 152 410c2-150 108-270 253-270Z" />
+          <path d="M396 230c100-4 172 72 172 170 0 104-74 176-170 176s-166-72-166-172c0-96 66-170 164-174Z" />
+          <path d="M402 320c50-2 84 34 84 82s-34 84-84 84-84-36-84-84c0-46 34-80 84-82Z" />
+        </svg>
+        <div class="container cta-inner">
+          <p class="eyebrow mono" data-reveal>Start here</p>
+          <h2 id="cta-title" class="display display-md" data-reveal>Start with a <em>sample.</em></h2>
+          <p class="lede" data-reveal>
+            Tell us what you are building. We will send a sample pack from live stations: raw streams, cleaned
+            tables and a data card, so your team can judge the data before anything else.
+          </p>
+          <div data-reveal>
+            <button class="btn btn-solid btn-lg" type="button" data-open-sample>
+              Request a sample
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-stamp mono">
+          <p class="footer-name">avcon Technologies</p>
+          <p>Listening to the land, one station at a time.</p>
+        </div>
+        <nav class="footer-nav mono" aria-label="Footer">
+          <a href="#station">Station</a>
+          <a href="#catalog">Catalog</a>
+          <a href="#ethos">Ethos</a>
+          <a href="mailto:hello@avcontechnologies.com">hello@avcontechnologies.com</a>
+        </nav>
+        <p class="footer-legal mono">© <span data-year>2026</span> avcon Technologies. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- REQUEST SAMPLE DIALOG -->
+    <dialog class="sample-dialog" id="sample-dialog" aria-labelledby="sample-title" data-sample-dialog>
+      <div class="dialog-card">
+        <div class="dialog-head">
+          <div>
+            <p class="mono eyebrow">Sample request</p>
+            <h2 id="sample-title" class="h3">Get a sample pack</h2>
+          </div>
+          <button class="icon-btn" type="button" data-close-sample aria-label="Close">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5L5 15" /></svg>
+          </button>
+        </div>
+
+        <!--
+          To receive submissions directly, set data-endpoint to a form backend URL
+          (for example https://formspree.io/f/yourid). Left empty, the form opens
+          the visitor's email app with the request filled in.
+        -->
+        <form
+          class="sample-form"
+          novalidate
+          data-sample-form
+          data-endpoint=""
+          data-mailto="hello@avcontechnologies.com"
+        >
+          <div class="field">
+            <label for="f-name">Full name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err" />
+            <p class="field-error" id="f-name-err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-email">Work email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-err" />
+            <p class="field-error" id="f-email-err" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="f-company">Company</label>
+            <input id="f-company" name="company" type="text" autocomplete="organization" required aria-describedby="f-company-err" />
+            <p class="field-error" id="f-company-err" aria-live="polite"></p>
+          </div>
+
+          <fieldset class="field">
+            <legend>Data you are interested in <span class="optional">optional</span></legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="modality" value="Air" /><span>Air</span></label>
+              <label class="chip"><input type="checkbox" name="modality" value="Soil" /><span>Soil</span></label>
+              <label class="chip"><input type="checkbox" name="modality" value="Water" /><span>Water</span></label>
+              <label class="chip"><input type="checkbox" name="modality" value="Bioacoustics" /><span>Bioacoustics</span></label>
+              <label class="chip"><input type="checkbox" name="modality" value="Imagery" /><span>Imagery</span></label>
+              <label class="chip"><input type="checkbox" name="modality" value="Weather" /><span>Weather</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="f-msg">What are you building? <span class="optional">optional</span></label>
+            <textarea id="f-msg" name="message" rows="3" placeholder="A sentence or two is plenty."></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="f-website">Leave this empty</label>
+            <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="form-foot">
+            <p class="mono fine">We only use these details to reply to you.</p>
+            <button class="btn btn-solid" type="submit" data-submit>
+              <span data-submit-label>Send request</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5 10h10M11 6l4 4-4 4" /></svg>
+            </button>
+          </div>
+          <p class="form-status" role="status" data-form-status></p>
+        </form>
+
+        <div class="form-success" data-form-success hidden tabindex="-1">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <circle cx="24" cy="24" r="21" />
+            <circle cx="24" cy="24" r="14" class="faint" />
+            <path d="M16 24.5l5.5 5.5L33 18.5" />
+          </svg>
+          <h3 class="h3">Request received.</h3>
+          <p data-success-msg>We will reply with a sample pack and a few questions about your use case.</p>
+          <button class="btn btn-ghost" type="button" data-close-sample>Close</button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>

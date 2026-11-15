@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found · avcon Technologies</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <script>
+      try {
+        var t = localStorage.getItem("avcon-theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+    <style>
+      .nf {
+        min-height: 100svh;
+        display: grid;
+        place-content: center;
+        gap: 24px;
+        text-align: center;
+        padding: 24px;
+      }
+      .nf .btn {
+        justify-self: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="nf">
+      <p class="eyebrow mono">Error 404 · No signal</p>
+      <h1 class="display display-md">Off the <em>map.</em></h1>
+      <p class="lede" style="margin-inline: auto">This page has no station. Head back and pick up the trail.</p>
+      <a class="btn btn-solid" href="/">Back to avcon</a>
+    </main>
+  </body>
+</html>
