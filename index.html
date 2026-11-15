@@ -34,7 +34,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
     />
     <link rel="stylesheet" href="assets/css/styles.css" />
 
@@ -234,35 +234,85 @@
 
           <div class="station" data-station>
             <figure class="station-figure" data-reveal>
-              <svg class="station-svg" viewBox="0 0 640 680" role="img" aria-labelledby="rig-svg-title">
+              <svg class="station-svg" viewBox="0 0 640 680" role="img" aria-labelledby="rig-svg-title" data-rig>
                 <title id="rig-svg-title">
-                  Line drawing of an operator at a workbench repairing a drone, wearing a head mounted stereo camera,
-                  depth sensor, eye tracker, wrist cameras, tactile gloves, motion sensors, a microphone and a belt
-                  recorder, watched by two fixed workcell cameras.
+                  Animated line drawing of an operator at a workbench repairing a drone, wearing a head mounted stereo
+                  camera, depth sensor, eye tracker, wrist cameras, tactile gloves, motion sensors, a microphone and a
+                  belt recorder, watched by two fixed workcell cameras.
                 </title>
 
-                <!-- 8 exocentric cameras -->
+                <!-- live readout -->
+                <text class="rig-readout" x="96" y="26" data-rig-readout>
+                  <tspan x="96" dy="0">REC  00:00.50</tspan>
+                  <tspan x="96" dy="15">ACTION  fasten screw</tspan>
+                  <tspan x="96" dy="15">GRIP R  9.8 N</tspan>
+                </text>
+
+                <!-- 8 workcell cameras -->
                 <g class="st-part" data-part="8">
                   <path d="M42 30V70M598 30V70" />
-                  <rect x="22" y="70" width="40" height="24" rx="2" />
-                  <rect x="62" y="76" width="8" height="12" rx="1" />
-                  <rect x="578" y="70" width="40" height="24" rx="2" />
-                  <rect x="570" y="76" width="8" height="12" rx="1" />
-                  <path class="st-dash st-fov" d="M72 84L210 488M72 84L430 488M568 84L430 488M568 84L210 488" />
+                  <rect class="st-fill" x="22" y="70" width="40" height="24" rx="2" />
+                  <rect class="st-fill" x="62" y="76" width="8" height="12" rx="1" />
+                  <rect class="st-fill" x="578" y="70" width="40" height="24" rx="2" />
+                  <rect class="st-fill" x="570" y="76" width="8" height="12" rx="1" />
+                  <path class="st-dash st-fov st-scan" d="M72 84L210 488M72 84L430 488M568 84L430 488M568 84L210 488" />
+                  <circle class="st-led" cx="30" cy="77" r="2" /><circle class="st-led" cx="610" cy="77" r="2" />
                 </g>
 
-                <!-- body -->
+                <!-- torso -->
                 <g class="st-body">
-                  <ellipse cx="320" cy="168" rx="44" ry="54" />
-                  <path class="st-faint-stroke" d="M310 200h20" />
-                  <path d="M306 220L304 244M334 220L336 244" />
-                  <path d="M304 244C260 248 222 258 212 290M336 244C380 248 418 258 428 290" />
-                  <path class="st-faint-stroke" d="M214 300C212 360 222 420 236 470M426 300C428 360 418 420 404 470" />
-                  <path class="st-arm" d="M214 290L188 400L262 482M426 290L452 400L378 482" />
-                  <circle class="st-joint" cx="214" cy="290" r="4" />
-                  <circle class="st-joint" cx="188" cy="400" r="4" />
-                  <circle class="st-joint" cx="426" cy="290" r="4" />
-                  <circle class="st-joint" cx="452" cy="400" r="4" />
+                  <path class="st-fill" d="M300 244C276 248 244 254 222 268C208 278 203 290 204 304C206 364 214 424 224 490H416C426 424 434 364 436 304C437 290 432 278 418 268C396 254 364 248 340 244Z" />
+                  <path class="st-faint-stroke" d="M300 245L320 270L340 245M320 270V488M318 300h4M318 340h4M318 380h4" />
+                  <path class="st-fill" d="M305 212C306 228 304 238 299 246L320 270L341 246C336 238 334 228 335 212Z" />
+                  <path class="st-fill-noline" d="M306 212H334V240H306Z" />
+                </g>
+
+                <!-- 9 recorder -->
+                <g class="st-part" data-part="9">
+                  <rect class="st-fill" x="298" y="436" width="44" height="28" rx="4" />
+                  <path d="M306 446h18M306 454h10" />
+                  <circle cx="334" cy="450" r="2.5" class="st-led" />
+                </g>
+
+                <!-- 7 microphone and data cable -->
+                <g class="st-part" data-part="7">
+                  <path class="st-cable st-flow" d="M346 266C350 320 336 390 330 436" />
+                  <rect class="st-fill" x="342" y="252" width="8" height="14" rx="3.5" />
+                </g>
+
+                <!-- chest IMU -->
+                <g class="st-part" data-part="6">
+                  <rect class="st-fill" x="312" y="318" width="16" height="13" rx="2" />
+                </g>
+
+                <!-- head (rotates as a group) -->
+                <g class="st-head" data-rig-head>
+                  <path class="st-fill" d="M276 158C268 155 265 172 271 181C273 185 277 185 280 183M364 158C372 155 375 172 369 181C367 185 363 185 360 183" />
+                  <path class="st-fill" d="M320 106C347 106 365 125 365 152C366 167 363 180 359 192C354 206 344 217 331 223C325 226 315 226 309 223C296 217 286 206 281 192C277 180 274 167 275 152C275 125 293 106 320 106Z" />
+                  <path class="st-hair" d="M276 152C275 122 294 102 322 102C349 102 367 122 365 152C361 142 352 134 340 131C328 128 312 128 300 131C288 134 280 142 276 152Z" />
+                  <path class="st-faint-stroke" d="M297 158q9-4 18 0M325 158q9-4 18 0M320 170C319 180 316 186 314 190C318 193 322 193 326 190M311 207q9 3 18 0" />
+                  <path d="M298 169q8 5 16 0M326 169q8 5 16 0" />
+
+                  <!-- 1 stereo head camera -->
+                  <g class="st-part" data-part="1">
+                    <path d="M276 160C276 153 277 150 278 148C296 138 344 138 362 148C363 150 364 153 364 160" />
+                    <rect class="st-fill" x="298" y="124" width="44" height="18" rx="4" />
+                    <circle cx="309" cy="133" r="4.5" />
+                    <circle cx="331" cy="133" r="4.5" />
+                    <circle class="st-led" cx="320" cy="128" r="1.5" />
+                  </g>
+                  <!-- 2 depth -->
+                  <g class="st-part" data-part="2">
+                    <rect class="st-fill" x="361" y="134" width="13" height="24" rx="3" />
+                    <circle cx="367.5" cy="141" r="2.4" />
+                    <path d="M364 151h7" />
+                  </g>
+                  <!-- 3 eye tracker -->
+                  <g class="st-part" data-part="3">
+                    <path d="M281 150C285 166 295 177 304 180M359 150C355 166 345 177 336 180" />
+                    <circle class="st-fill" cx="305" cy="180" r="2.4" />
+                    <circle class="st-fill" cx="335" cy="180" r="2.4" />
+                  </g>
                 </g>
 
                 <!-- bench and drone -->
@@ -275,83 +325,31 @@
                   <ellipse cx="288" cy="530" rx="15" ry="5" />
                   <ellipse cx="352" cy="530" rx="15" ry="5" />
                   <rect class="st-fill" x="308" y="511" width="24" height="12" rx="3" />
+                  <circle class="st-faint-stroke" cx="458" cy="478" r="5" />
+                  <path class="st-faint-stroke" d="M452 488h12" />
                 </g>
 
-                <!-- 1 stereo egocentric camera -->
-                <g class="st-part" data-part="1">
-                  <path d="M276 152C278 104 362 104 364 152" />
-                  <rect class="st-fill" x="296" y="102" width="48" height="20" rx="3" />
-                  <circle cx="308" cy="112" r="4.5" />
-                  <circle cx="332" cy="112" r="4.5" />
-                </g>
+                <!-- gaze (part of 3) -->
+                <g class="st-part" data-part="3" data-rig-gaze></g>
 
-                <!-- 2 depth -->
-                <g class="st-part" data-part="2">
-                  <rect class="st-fill" x="356" y="124" width="18" height="28" rx="3" />
-                  <circle cx="365" cy="132" r="2.5" />
-                  <path d="M361 142h8" />
-                </g>
-
-                <!-- 3 eye tracking -->
-                <g class="st-part" data-part="3">
-                  <ellipse cx="304" cy="168" rx="6" ry="3" />
-                  <ellipse cx="336" cy="168" rx="6" ry="3" />
-                  <path d="M282 152C284 164 290 172 296 176M358 152C356 164 350 172 344 176" />
-                  <path class="st-dash st-gaze" d="M304 172L316 512M336 172L324 512" />
-                </g>
-
-                <!-- 6 IMU suit -->
-                <g class="st-part" data-part="6">
-                  <rect class="st-fill" x="194" y="338" width="14" height="12" rx="2" transform="rotate(-14 201 344)" />
-                  <rect class="st-fill" x="432" y="338" width="14" height="12" rx="2" transform="rotate(14 439 344)" />
-                  <rect class="st-fill" x="218" y="434" width="14" height="12" rx="2" transform="rotate(48 225 440)" />
-                  <rect class="st-fill" x="408" y="434" width="14" height="12" rx="2" transform="rotate(-48 415 440)" />
-                  <rect class="st-fill" x="312" y="312" width="16" height="14" rx="2" />
-                </g>
-
-                <!-- 7 microphone -->
-                <g class="st-part" data-part="7">
-                  <rect class="st-fill" x="342" y="252" width="8" height="13" rx="3" />
-                  <path class="st-cable" d="M346 265C350 320 336 390 330 436" />
-                </g>
-
-                <!-- 9 recorder -->
-                <g class="st-part" data-part="9">
-                  <rect class="st-fill" x="298" y="436" width="44" height="28" rx="4" />
-                  <path d="M306 446h18M306 454h10" />
-                  <circle cx="334" cy="450" r="2.5" class="st-led" />
-                </g>
-
-                <!-- 4 wrist cameras -->
-                <g class="st-part" data-part="4">
-                  <rect class="st-fill" x="240" y="460" width="14" height="10" rx="2" transform="rotate(48 247 465)" />
-                  <rect class="st-fill" x="386" y="460" width="14" height="10" rx="2" transform="rotate(-48 393 465)" />
-                  <path class="st-dash st-fov" d="M254 472L290 514M386 472L350 514" />
-                </g>
-
-                <!-- 5 tactile gloves -->
-                <g class="st-part" data-part="5">
-                  <path d="M262 482L258 512M262 482L270 516M262 482L282 512M262 482L292 504M262 482L290 488" />
-                  <path d="M378 482L382 512M378 482L370 516M378 482L358 512M378 482L348 504M378 482L350 488" />
-                  <circle class="st-joint" cx="262" cy="482" r="4" />
-                  <circle class="st-joint" cx="378" cy="482" r="4" />
-                  <g class="st-taxel">
-                    <circle cx="258" cy="512" r="2.6" /><circle cx="270" cy="516" r="2.6" /><circle cx="282" cy="512" r="2.6" /><circle cx="292" cy="504" r="2.6" /><circle cx="290" cy="488" r="2.6" />
-                    <circle cx="382" cy="512" r="2.6" /><circle cx="370" cy="516" r="2.6" /><circle cx="358" cy="512" r="2.6" /><circle cx="348" cy="504" r="2.6" /><circle cx="350" cy="488" r="2.6" />
-                  </g>
-                </g>
+                <!-- moving parts, built by assets/js/rig.js -->
+                <g data-rig-arms></g>
+                <g class="st-part" data-part="6" data-rig-imu></g>
+                <g class="st-part" data-part="4" data-rig-wcam></g>
+                <g data-rig-tool></g>
+                <g class="st-part" data-part="5" data-rig-gloves></g>
 
                 <!-- hotspots -->
                 <g class="hotspots">
-                  <g class="hs" data-hs="1" transform="translate(320 64)"><path class="hs-lead" d="M0 11V37" /><circle r="11" /><text y="4">1</text></g>
-                  <g class="hs" data-hs="2" transform="translate(420 116)"><path class="hs-lead" d="M-10 5L-44 16" /><circle r="11" /><text y="4">2</text></g>
-                  <g class="hs" data-hs="3" transform="translate(236 196)"><path class="hs-lead" d="M10 -4L62 -26" /><circle r="11" /><text y="4">3</text></g>
-                  <g class="hs" data-hs="4" transform="translate(150 470)"><path class="hs-lead" d="M11 -2L90 -4" /><circle r="11" /><text y="4">4</text></g>
-                  <g class="hs" data-hs="5" transform="translate(236 600)"><path class="hs-lead" d="M4 -10L28 -82" /><circle r="11" /><text y="4">5</text></g>
-                  <g class="hs" data-hs="6" transform="translate(496 330)"><path class="hs-lead" d="M-11 3L-50 13" /><circle r="11" /><text y="4">6</text></g>
-                  <g class="hs" data-hs="7" transform="translate(402 238)"><path class="hs-lead" d="M-10 5L-46 18" /><circle r="11" /><text y="4">7</text></g>
+                  <g class="hs" data-hs="1" transform="translate(320 70)"><path class="hs-lead" d="M0 11V52" /><circle r="11" /><text y="4">1</text></g>
+                  <g class="hs" data-hs="2" transform="translate(420 118)"><path class="hs-lead" d="M-10 5L-40 22" /><circle r="11" /><text y="4">2</text></g>
+                  <g class="hs" data-hs="3" transform="translate(236 200)"><path class="hs-lead" d="M10 -4L66 -20" /><circle r="11" /><text y="4">3</text></g>
+                  <g class="hs" data-hs="4" transform="translate(170 470)"><path class="hs-lead" d="M11 -2L82 -6" /><circle r="11" /><text y="4">4</text></g>
+                  <g class="hs" data-hs="5" transform="translate(236 600)"><path class="hs-lead" d="M4 -10L32 -88" /><circle r="11" /><text y="4">5</text></g>
+                  <g class="hs" data-hs="6" transform="translate(500 330)"><path class="hs-lead" d="M-11 1L-60 4" /><circle r="11" /><text y="4">6</text></g>
+                  <g class="hs" data-hs="7" transform="translate(404 236)"><path class="hs-lead" d="M-10 5L-50 18" /><circle r="11" /><text y="4">7</text></g>
                   <g class="hs" data-hs="8" transform="translate(598 140)"><path class="hs-lead" d="M0 -11V-44" /><circle r="11" /><text y="4">8</text></g>
-                  <g class="hs" data-hs="9" transform="translate(320 400)"><path class="hs-lead" d="M0 11V36" /><circle r="11" /><text y="4">9</text></g>
+                  <g class="hs" data-hs="9" transform="translate(372 410)"><path class="hs-lead" d="M-8 8L-30 26" /><circle r="11" /><text y="4">9</text></g>
                 </g>
               </svg>
               <figcaption class="mono">Fig. 1 · avcon capture rig, standard build</figcaption>

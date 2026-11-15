@@ -1,4 +1,5 @@
 import { initHands } from "./hands.js";
+import { initRig } from "./rig.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -7,6 +8,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 /* ---------- Hero scene ---------- */
 
 const field = initHands($("[data-hands]"));
+initRig($("[data-rig]"));
 
 /* ---------- Theme ---------- */
 

@@ -17,7 +17,7 @@
   --surface: rgba(var(--ink-rgb), 0.035);
   --danger: #ff8f7a;
 
-  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --gutter: clamp(16px, 4vw, 48px);
@@ -168,36 +168,36 @@ button {
 
 .display {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(3rem, 8.2vw, 7.5rem);
-  line-height: 0.92;
-  letter-spacing: -0.025em;
+  font-weight: 500;
+  font-size: clamp(2.6rem, 7.4vw, 6.75rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
   text-wrap: balance;
 }
 .display-md {
-  font-size: clamp(2.75rem, 7vw, 6.25rem);
+  font-size: clamp(2.5rem, 6.4vw, 5.5rem);
 }
 .display em,
 .h2 em {
-  font-style: italic;
+  font-style: normal;
   color: var(--accent);
 }
 
 .h2 {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(2.25rem, 5vw, 4.25rem);
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  font-size: clamp(2rem, 4.4vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
 .h3 {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 
 .h4 {
@@ -360,9 +360,10 @@ button {
 }
 .brand-word {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-weight: 600;
+  font-size: 1.5rem;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.05em;
 }
 .brand-sub {
   font-size: 0.62rem;
@@ -692,8 +693,10 @@ button {
 .facts dd {
   margin-top: 10px;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 4.4vw, 3.75rem);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 4vw, 3.25rem);
   line-height: 1;
+  letter-spacing: -0.05em;
 }
 .facts dd span {
   font-family: var(--font-mono);
@@ -1021,10 +1024,10 @@ button {
 }
 .catalog tbody th {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.6rem;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
 }
 .catalog tbody td {
   color: var(--ink-2);
@@ -1966,7 +1969,9 @@ button {
 .principles span {
   display: block;
   font-family: var(--font-display);
-  font-size: 2.4rem;
+  font-weight: 500;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
   line-height: 1;
   color: var(--accent);
   margin-bottom: 20px;
@@ -2042,8 +2047,9 @@ button {
 }
 .footer-name {
   font-family: var(--font-display);
-  font-size: 1.6rem;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
   color: var(--ink);
   margin-bottom: 4px;
 }
@@ -2344,5 +2350,101 @@ button {
   body {
     background: #fff;
     color: #000;
+  }
+}
+
+/* ---------- Animated rig ---------- */
+
+.station-svg .st-fill-noline {
+  fill: var(--canvas);
+  stroke: none;
+}
+.station-svg .st-hair {
+  fill: rgba(var(--ink-rgb), 0.16);
+  stroke: var(--ink);
+}
+.station-svg .rig-readout {
+  font-size: 10.5px;
+  fill: var(--ink-2);
+  letter-spacing: 0.06em;
+}
+.station-svg .rig-readout tspan:first-child {
+  fill: var(--accent);
+}
+.station-svg .arm-fill {
+  fill: var(--canvas);
+  stroke: none;
+}
+.station-svg .arm-line {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+.station-svg .arm-sleeve {
+  stroke: var(--ink-2);
+  stroke-width: 1.2;
+}
+.station-svg .arm-bone {
+  stroke: rgba(var(--accent-rgb), 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.station-svg .arm-joint {
+  fill: var(--canvas);
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+.station-svg .glove-o {
+  stroke: var(--ink);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: var(--ink);
+}
+.station-svg .glove-i {
+  stroke: var(--canvas);
+  stroke-width: 6.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: var(--canvas);
+}
+.station-svg .glove-cuff {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+.station-svg .glove-tip {
+  fill: var(--accent);
+  stroke: none;
+}
+.station-svg .st-part.is-active .glove-o {
+  stroke: var(--accent);
+  fill: var(--accent);
+}
+.station-svg .tool-shaft {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.station-svg .tool-handle {
+  stroke: var(--ink-2);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+.station-svg .gaze-dot {
+  stroke: var(--accent);
+  stroke-dasharray: 2 2;
+  fill: rgba(var(--accent-rgb), 0.12);
+}
+.station-svg .st-scan,
+.station-svg .st-flow,
+.station-svg .st-gaze {
+  animation: dashflow 1.4s linear infinite;
+}
+.station-svg .st-flow {
+  stroke: var(--accent);
+  stroke-dasharray: 2 6;
+  animation-duration: 0.9s;
+}
+@keyframes dashflow {
+  to {
+    stroke-dashoffset: -16;
   }
 }
