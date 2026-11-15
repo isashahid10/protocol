@@ -169,7 +169,7 @@ button {
 .display {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(3rem, 9.4vw, 8.75rem);
+  font-size: clamp(3rem, 8.2vw, 7.5rem);
   line-height: 0.92;
   letter-spacing: -0.025em;
   text-wrap: balance;
@@ -398,7 +398,7 @@ button {
   gap: 10px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1060px) {
   .site-nav {
     display: none;
   }
@@ -542,7 +542,7 @@ button {
     gap: 6px 16px;
     margin-bottom: 28px;
   }
-  .hero-meta span:last-child {
+  .hero-meta {
     display: none;
   }
   .scroll-cue {
@@ -1071,11 +1071,700 @@ button {
   .catalog tbody td:nth-child(n + 3)::before {
     content: attr(data-label);
     display: inline-block;
-    width: 84px;
+    width: 100px;
     font-size: 0.66rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-3);
+  }
+}
+
+/* ---------- Annotation viewer ---------- */
+
+.annot {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(var(--ink-rgb), 0.02);
+}
+.annot-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.annot-tabs::-webkit-scrollbar {
+  display: none;
+}
+.annot-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 22px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+  position: relative;
+  transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+}
+.annot-tab span {
+  font-size: 0.62rem;
+  padding: 2px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+}
+.annot-tab:hover {
+  color: var(--ink);
+}
+.annot-tab[aria-selected="true"] {
+  color: var(--ink);
+  background: var(--surface);
+}
+.annot-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  background: var(--accent);
+}
+.annot-tab[aria-selected="true"] span {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.annot-panel:focus-visible {
+  outline-offset: -2px;
+}
+.annot-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 24px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+.annot-bar .crumbs {
+  color: var(--ink-2);
+}
+.annot-bar .status {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.annot-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+}
+.annot-stage {
+  padding: clamp(12px, 2vw, 24px);
+  min-width: 0;
+  background-image: radial-gradient(rgba(var(--ink-rgb), 0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.annot-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--ink);
+}
+.annot-svg text {
+  stroke: none;
+  fill: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.annot-svg .grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.annot-svg .grid.v {
+  stroke-dasharray: 2 4;
+}
+
+/* spectrogram */
+.annot-svg .noise {
+  fill: var(--ink);
+  stroke: none;
+}
+.annot-svg .low {
+  stroke: none;
+}
+.annot-svg .call {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+}
+.annot-svg .call-glow {
+  stroke: var(--ink);
+  stroke-width: 9;
+  opacity: 0.14;
+}
+.annot-svg .trill path {
+  stroke-width: 2;
+}
+.annot-svg .band {
+  stroke: var(--ink);
+  stroke-width: 9;
+  stroke-dasharray: 2 3;
+  opacity: 0.32;
+}
+.annot-svg .frog {
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-dasharray: 6 9;
+  stroke-linecap: butt;
+  opacity: 0.6;
+}
+.annot-svg .saw path {
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+.annot-svg .playhead {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  animation: playhead 12s linear infinite;
+}
+@keyframes playhead {
+  to {
+    transform: translateX(690px);
+  }
+}
+
+/* imagery */
+.annot-svg .scene-faint {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+}
+.annot-svg .rows {
+  stroke: var(--line-strong);
+}
+.annot-svg .dash {
+  stroke-dasharray: 3 5;
+}
+.annot-svg .scene path,
+.annot-svg .scene ellipse {
+  fill: none;
+}
+.annot-svg .scene .crown {
+  fill: var(--canvas);
+}
+.annot-svg .scene .faint {
+  stroke: var(--ink-3);
+}
+.annot-svg .hatch {
+  stroke: var(--danger);
+  stroke-width: 1.2;
+}
+.annot-svg .cursor path {
+  stroke: var(--ink-2);
+  stroke-width: 1;
+}
+
+/* events */
+.annot-svg .axes .unit {
+  fill: var(--ink-3);
+  opacity: 0.7;
+}
+.annot-svg .axes text:not(.unit) {
+  fill: var(--ink-2);
+}
+.annot-svg .event-span {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: rgba(var(--accent-rgb), 0.6);
+  stroke-dasharray: 3 4;
+  stroke-width: 1;
+}
+.annot-svg .series path {
+  stroke-width: 1.8;
+}
+.annot-svg .series .thin {
+  stroke-width: 1.1;
+  stroke: var(--ink-2);
+}
+.annot-svg .bars rect {
+  fill: var(--ink);
+  stroke: none;
+}
+.annot-svg .mark {
+  fill: var(--accent);
+  stroke: var(--canvas);
+  stroke-width: 2;
+}
+.annot-svg .note {
+  fill: var(--accent);
+  letter-spacing: 0.1em;
+}
+.annot-svg .measure {
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+.annot-svg .qc {
+  stroke: var(--danger);
+  fill: var(--canvas);
+  stroke-width: 1.4;
+}
+
+/* annotation primitives */
+.annot-svg .a-box,
+.annot-svg .a-poly {
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  fill: rgba(var(--accent-rgb), 0.06);
+}
+.annot-svg .a-poly {
+  stroke-dasharray: 5 3;
+}
+.annot-svg .a-warn {
+  stroke: var(--danger);
+  fill: rgba(255, 143, 122, 0.06);
+}
+.annot-svg .a-poly.hatched {
+  fill: url(#hatch);
+  fill-opacity: 0.5;
+}
+.annot-svg .a-review {
+  stroke: var(--ink-2);
+  stroke-dasharray: 2 3;
+  fill: none;
+}
+.annot-svg .handles rect {
+  fill: var(--canvas);
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+.annot-svg .leader {
+  stroke: var(--danger);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.annot-svg .tag rect {
+  fill: var(--accent);
+  stroke: none;
+}
+.annot-svg .tag text {
+  fill: var(--accent-ink);
+  font-weight: 500;
+}
+.annot-svg .tag-warn rect {
+  fill: var(--danger);
+}
+.annot-svg .tag-warn text {
+  fill: var(--canvas);
+}
+.annot-svg .tag-review rect {
+  fill: var(--ink-2);
+}
+.annot-svg .tag-review text {
+  fill: var(--canvas);
+}
+.annot-panel.is-active .annots > * {
+  animation: annotIn 0.6s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 150ms);
+}
+@keyframes annotIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* label sidebar */
+.annot-labels {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line);
+  font-size: 0.74rem;
+}
+.annot-lh {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.annot-lh span {
+  color: var(--accent);
+}
+.annot-labels ul {
+  flex: 1;
+}
+.annot-labels li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.annot-labels li span {
+  display: grid;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.annot-labels small {
+  font-size: 0.64rem;
+  color: var(--ink-3);
+}
+.annot-labels b {
+  font-weight: 400;
+  font-size: 0.68rem;
+  color: var(--ink-2);
+}
+.sw {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1.5px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.2);
+}
+.sw-warn {
+  border-color: var(--danger);
+  background: rgba(255, 143, 122, 0.2);
+}
+.sw-review {
+  border-color: var(--ink-2);
+  border-style: dashed;
+  background: none;
+}
+.annot-foot {
+  padding: 14px 16px;
+  display: grid;
+  gap: 6px;
+  font-size: 0.66rem;
+  color: var(--ink-2);
+}
+.annot-foot span {
+  display: inline-block;
+  width: 72px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 980px) {
+  .annot-body {
+    grid-template-columns: 1fr;
+  }
+  .annot-labels {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .annot-labels ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .annot-stage {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .annot-svg {
+    min-width: 600px;
+  }
+}
+@media (max-width: 560px) {
+  .annot-bar .meta {
+    display: none;
+  }
+  .annot-tab {
+    padding: 0 14px;
+    font-size: 0.7rem;
+  }
+}
+
+.standards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: clamp(40px, 5vw, 64px);
+  border-top: 1px solid var(--line);
+}
+.standards li {
+  padding: 28px 28px 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.standards li:not(:nth-child(3n + 1)) {
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+.standards span {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.standards p {
+  margin-top: 10px;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+@media (max-width: 900px) {
+  .standards {
+    grid-template-columns: 1fr 1fr;
+  }
+  .standards li,
+  .standards li:not(:nth-child(3n + 1)) {
+    padding: 24px 24px 28px 0;
+    border-left: 0;
+  }
+  .standards li:nth-child(even) {
+    padding-left: 24px;
+    border-left: 1px solid var(--line);
+  }
+}
+@media (max-width: 560px) {
+  .standards {
+    grid-template-columns: 1fr;
+  }
+  .standards li,
+  .standards li:nth-child(even) {
+    padding: 24px 0;
+    border-left: 0;
+  }
+}
+
+/* robotics mockups */
+.annot-svg .hand .bones {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.annot-svg .hand .kp {
+  fill: var(--canvas);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.annot-svg .hand .tip,
+.annot-svg .tipdot {
+  fill: var(--accent);
+  stroke: none;
+}
+.annot-svg .scene .prop {
+  stroke: var(--ink-3);
+  stroke-width: 2;
+}
+.annot-svg .scene .body {
+  fill: var(--canvas);
+}
+.annot-svg .scene .faint {
+  stroke: var(--ink-3);
+}
+.annot-svg .scene .handle {
+  stroke: var(--ink-3);
+  stroke-width: 8;
+}
+.annot-svg .target {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+.annot-svg .gaze circle {
+  stroke: var(--ink-2);
+  stroke-dasharray: 3 3;
+}
+.annot-svg .gaze .dot {
+  fill: var(--ink-2);
+  stroke: none;
+}
+.annot-svg .thumb rect {
+  stroke: var(--line-strong);
+  fill: var(--surface);
+}
+.annot-svg .thumb text {
+  font-size: 8px;
+}
+.annot-svg .thumb .faint {
+  stroke: var(--ink-3);
+}
+.annot-svg .seg rect {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+.annot-svg .seg .verb {
+  fill: var(--accent);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+.annot-svg .seg .noun {
+  fill: var(--ink-2);
+  font-size: 9px;
+}
+.annot-svg .state {
+  stroke: none;
+}
+.annot-svg .s-on {
+  fill: rgba(var(--ink-rgb), 0.22);
+}
+.annot-svg .s-off {
+  fill: rgba(var(--ink-rgb), 0.06);
+}
+.annot-svg .small {
+  font-size: 8.5px;
+  fill: var(--ink-2);
+}
+.annot-svg .glove .fingers {
+  stroke: rgba(var(--ink-rgb), 0.1);
+  stroke-width: 26;
+}
+.annot-svg .glove .palm {
+  fill: rgba(var(--ink-rgb), 0.1);
+  stroke: rgba(var(--ink-rgb), 0.1);
+  stroke-width: 26;
+}
+.annot-svg .taxels circle {
+  stroke: none;
+  fill: rgba(var(--accent-rgb), calc(0.18 + var(--p) * 0.82));
+}
+.annot-svg .bars-side text {
+  fill: var(--ink-2);
+}
+.annot-svg .bars-side .val {
+  fill: var(--ink);
+}
+.annot-svg .bars-side .track {
+  fill: rgba(var(--ink-rgb), 0.08);
+  stroke: none;
+}
+.annot-svg .bars-side .fill {
+  fill: var(--accent);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: left;
+}
+.annot-panel.is-active .bars-side .fill {
+  animation: grow 0.8s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 200ms);
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* rig drawing */
+.station-svg .st-fill,
+.station-svg .st-top {
+  fill: var(--canvas);
+}
+.station-svg .st-joint {
+  fill: var(--canvas);
+  stroke: var(--ink);
+}
+.station-svg .st-gaze {
+  stroke: rgba(var(--accent-rgb), 0.55);
+}
+.station-svg .st-taxel circle {
+  fill: var(--accent);
+  stroke: none;
+}
+.station-svg .st-led {
+  fill: var(--accent);
+  stroke: none;
+  animation: signal 1.6s var(--ease) infinite;
+}
+.station-svg .st-part.is-active .st-fill {
+  fill: rgba(var(--accent-rgb), 0.15);
+}
+
+/* ---------- Domains ---------- */
+
+.domains {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.domain {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 24px 28px;
+  background: var(--canvas);
+  min-height: 250px;
+  transition: background-color 0.3s var(--ease);
+}
+.domain:hover {
+  background: rgba(var(--accent-rgb), 0.05);
+}
+.domain svg {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 18px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.4s var(--ease);
+}
+.domain:hover svg {
+  transform: translateY(-3px);
+}
+.domain svg .acc {
+  stroke: var(--accent);
+}
+.domain svg .dash {
+  stroke-dasharray: 3 4;
+}
+.domain-n {
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.domain p:not(.domain-n) {
+  color: var(--ink-2);
+  font-size: 0.86rem;
+  text-wrap: pretty;
+}
+.domain-custom {
+  background: rgba(var(--accent-rgb), 0.08);
+}
+.domain-custom svg {
+  stroke: var(--accent);
+}
+.domain-custom .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+@media (max-width: 1100px) {
+  .domains {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .domains {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .domain {
+    padding: 20px 16px 22px;
+    min-height: 0;
+  }
+}
+@media (max-width: 420px) {
+  .domains {
+    grid-template-columns: 1fr;
   }
 }
 

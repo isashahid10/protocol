@@ -1,12 +1,12 @@
-import { initField } from "./field.js";
+import { initHands } from "./hands.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- Hero field ---------- */
+/* ---------- Hero scene ---------- */
 
-const field = initField($("[data-field]"));
+const field = initHands($("[data-hands]"));
 
 /* ---------- Theme ---------- */
 
@@ -69,6 +69,16 @@ if (clock) {
   tick();
   setInterval(tick, 1000);
 }
+
+// Frame counter in the hero, ticking at 30 fps from a fixed start.
+const frameEl = $("[data-frame]");
+if (frameEl && !reduceMotion) {
+  const t0 = performance.now();
+  setInterval(() => {
+    const f = 18224 + Math.floor(((performance.now() - t0) / 1000) * 30);
+    frameEl.textContent = f.toLocaleString("en-US").padStart(6, "0");
+  }, 100);
+}
 $$("[data-year]").forEach((el) => (el.textContent = String(new Date().getFullYear())));
 
 /* ---------- Reveal on scroll ---------- */
@@ -95,49 +105,49 @@ if (!reduceMotion && "IntersectionObserver" in window) {
 
 const SENSORS = {
   1: {
-    title: "Wind",
-    body: "Ultrasonic anemometer and vane at 3 m. Speed, gusts and direction for micrometeorology, fire weather and spray drift models.",
-    spec: [["Signals", "Speed, gust, direction"], ["Cadence", "1 Hz"], ["Accuracy", "±0.1 m/s"]],
+    title: "Stereo head camera",
+    body: "Forehead mounted stereo pair that sees exactly what the operator sees, with hands, tools and parts in frame.",
+    spec: [["Signals", "Stereo RGB video"], ["Resolution", "2 × 4K at 30 fps, or 1080p at 60"], ["Field of view", "120° diagonal"]],
   },
   2: {
-    title: "Sunlight",
-    body: "Thermopile pyranometer measuring incoming solar radiation. The energy budget behind evaporation, crop growth and solar yield.",
-    spec: [["Signals", "Global irradiance, PAR"], ["Range", "285 to 3000 nm"], ["Cadence", "1 min"]],
+    title: "Depth",
+    body: "Time of flight depth aligned to the head camera, giving 3D geometry for hands, tools and parts.",
+    spec: [["Signals", "Depth map, point cloud"], ["Range", "0.2 to 4 m"], ["Rate", "30 fps"]],
   },
   3: {
-    title: "Canopy camera",
-    body: "Fixed RGB and near infrared camera aimed at the canopy. Tracks green up, flowering, stress and leaf fall frame by frame.",
-    spec: [["Signals", "RGB, NIR, NDVI, phenology"], ["Cadence", "Every 10 min"], ["Labels", "Phenology stage, damage"]],
+    title: "Eye tracking",
+    body: "Gaze shows a model where attention goes before the hands move: which screw, which connector, which edge.",
+    spec: [["Signals", "Gaze vector, fixations, pupil"], ["Rate", "120 Hz"], ["Labels", "Fixation targets"]],
   },
   4: {
-    title: "Air quality",
-    body: "Radiation shielded sensor stack for particulates, gases, temperature and humidity, co-located with reference monitors for calibration.",
-    spec: [["Signals", "PM1, PM2.5, PM10, NO₂, O₃, CO₂, VOCs"], ["Cadence", "1 min"], ["Calibration", "Monthly vs reference"]],
+    title: "Wrist cameras",
+    body: "Close up views from each wrist for fine manipulation the head camera cannot resolve: pins, threads, wires.",
+    spec: [["Signals", "RGB video, 2 units"], ["Resolution", "1080p at 60 fps"], ["Labels", "Contact, grasp type"]],
   },
   5: {
-    title: "Bioacoustics",
-    body: "Weatherproof recorder capturing the soundscape day and night. Birds, bats, frogs, insects and the engines and saws that interrupt them.",
-    spec: [["Signals", "Audio, species, events"], ["Sample rate", "48 kHz, up to 384 kHz"], ["Labels", "Expert verified"]],
+    title: "Tactile gloves",
+    body: "Thin pressure sensing gloves across palm and fingers, so grip force is in the data instead of guessed.",
+    spec: [["Signals", "Pressure map per hand"], ["Resolution", "120 taxels, 100 Hz"], ["Labels", "Contact, peak force, slip"]],
   },
   6: {
-    title: "Rainfall",
-    body: "Tipping bucket gauge at ground level. The trigger event that ties every other stream together.",
-    spec: [["Signals", "Rain depth, intensity"], ["Resolution", "0.2 mm"], ["Cadence", "Per tip, 1 min roll up"]],
+    title: "Motion suit",
+    body: "Nine axis IMUs on the forearms, upper arms and chest for full upper body motion and posture.",
+    spec: [["Signals", "Joint angles, acceleration"], ["Nodes", "7 IMUs"], ["Rate", "200 Hz"]],
   },
   7: {
-    title: "Soil profile",
-    body: "Multi depth probe reading moisture, temperature and salinity at 10, 30 and 60 cm. What the satellite cannot see.",
-    spec: [["Signals", "VWC, temperature, EC"], ["Depths", "10, 30, 60 cm"], ["Cadence", "15 min"]],
+    title: "Audio",
+    body: "Tool sounds and optional think aloud narration from the operator, transcribed and time aligned to each step.",
+    spec: [["Signals", "Audio, transcript"], ["Sample rate", "48 kHz"], ["Labels", "Narration, tool events"]],
   },
   8: {
-    title: "Water sonde",
-    body: "Submerged multiparameter sonde in the nearest pond, stream or canal. Catches runoff and nutrient pulses as they happen.",
-    spec: [["Signals", "pH, DO, turbidity, nitrate, level"], ["Cadence", "5 min"], ["Depth", "Up to 10 m"]],
+    title: "Workcell cameras",
+    body: "Fixed third person views of the work area, calibrated to the head rig for multi view 3D reconstruction.",
+    spec: [["Signals", "Synced RGB views"], ["Units", "2 to 6 per cell"], ["Labels", "Scene layout, 3D pose"]],
   },
   9: {
-    title: "Logger and uplink",
-    body: "Edge logger with GPS disciplined clock. Buffers months of data and sends it home over whatever the site allows.",
-    spec: [["Time sync", "GPS, ±1 ms"], ["Uplink", "LoRa, LTE-M, satellite"], ["Autonomy", "14 days without sun"]],
+    title: "Recorder and sync",
+    body: "Belt worn recorder with a hardware clock across every stream. Encrypted on device, offloaded at end of shift.",
+    spec: [["Time sync", "Hardware, ±1 ms"], ["Battery", "Full 8 hour shift"], ["Storage", "Encrypted on device"]],
   },
 };
 
@@ -189,6 +199,79 @@ if (station) {
   select(1, { animate: false });
 }
 
+/* ---------- Annotation viewer ---------- */
+
+const annot = $("[data-annot]");
+if (annot) {
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  // Vertex handles on every polygon, like an annotation tool.
+  $$("polygon[data-handles]", annot).forEach((poly) => {
+    const g = document.createElementNS(SVG_NS, "g");
+    g.setAttribute("class", "handles");
+    g.setAttribute("style", poly.getAttribute("style") || "");
+    poly
+      .getAttribute("points")
+      .trim()
+      .split(/\s+/)
+      .forEach((pt) => {
+        const [x, y] = pt.split(",").map(Number);
+        const r = document.createElementNS(SVG_NS, "rect");
+        r.setAttribute("x", x - 3);
+        r.setAttribute("y", y - 3);
+        r.setAttribute("width", 6);
+        r.setAttribute("height", 6);
+        g.append(r);
+      });
+    poly.after(g);
+  });
+
+  // Fit label tags to their text once fonts are in.
+  const fitTags = (root) =>
+    $$(".tag", root).forEach((tag) => {
+      const text = tag.querySelector("text");
+      const rect = tag.querySelector("rect");
+      try {
+        const len = text.getComputedTextLength();
+        if (len > 0) rect.setAttribute("width", Math.ceil(len + 12));
+      } catch (e) {
+        /* hidden panels cannot be measured yet */
+      }
+    });
+
+  const tabs = $$('[role="tab"]', annot);
+  const panels = $$('[role="tabpanel"]', annot);
+  const activate = (tab, focus = false) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    panels.forEach((p) => {
+      const on = p.id === tab.getAttribute("aria-controls");
+      p.hidden = !on;
+      p.classList.toggle("is-active", on);
+      if (on) fitTags(p);
+    });
+    if (focus) tab.focus();
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => activate(tab));
+    tab.addEventListener("keydown", (e) => {
+      let next = null;
+      if (e.key === "ArrowRight") next = tabs[(i + 1) % tabs.length];
+      else if (e.key === "ArrowLeft") next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === "Home") next = tabs[0];
+      else if (e.key === "End") next = tabs[tabs.length - 1];
+      if (next) {
+        e.preventDefault();
+        activate(next, true);
+      }
+    });
+  });
+  document.fonts?.ready.then(() => fitTags(panels.find((p) => !p.hidden)));
+}
+
 /* ---------- Carousel ---------- */
 
 const carousel = $("[data-carousel]");
@@ -221,19 +304,16 @@ if (log) {
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const id = (prefix) => `${prefix}-${String(Math.floor(Math.random() * 320) + 1).padStart(3, "0")}`;
   const templates = [
-    () => [id("SOL"), `VWC 30cm ${rnd(18, 34)}%`, "OK"],
-    () => [id("SOL"), `EC 10cm ${rnd(0.2, 1.8, 2)} dS/m`, "OK"],
-    () => [id("H2O"), `NO₃ ${rnd(0.8, 4.2, 2)} mg/L`, `TURB ${rnd(4, 40, 0)} NTU`],
-    () => [id("H2O"), `DO ${rnd(6, 9.5)} mg/L`, `pH ${rnd(6.6, 8.2)}`],
-    () => [id("AIR"), `PM2.5 ${rnd(8, 90, 0)} µg/m³`, "CALIBRATED"],
-    () => [id("AIR"), `NO₂ ${rnd(4, 48, 0)} ppb`, "OK"],
-    () => [id("BIO"), `${pick(["DAWN CHORUS", "DUSK CHORUS", "NIGHT PASS"])}`, `${rnd(6, 31, 0)} SPECIES TAGGED`],
-    () => [id("BIO"), `BAT PASS ${rnd(20, 60, 0)} kHz`, "LABELLED"],
-    () => [id("CAN"), `NDVI ${rnd(0.42, 0.88, 2)}`, `FRAME ${rnd(1000, 24000, 0)}`],
-    () => [id("MET"), `GUST ${rnd(2, 18)} m/s ${pick(["N", "NE", "E", "SE", "S", "SW", "W", "NNW"])}`, "OK"],
-    () => [id("MET"), `RAIN ${rnd(0.2, 6)} mm`, "EVENT OPEN"],
-    () => ["SYS", `${id("STN")} UPLINK ${pick(["LORA", "LTE-M", "SAT"])}`, "SYNCED"],
-    () => ["QA", `BATCH ${rnd(7000, 9999, 0)} PASSED`, `${rnd(0, 0.09, 2)}% GAPS FILLED`],
+    () => [id("EGO"), `${pick(["DRONE REPAIR", "PCB REWORK", "LINE ASSEMBLY", "PICK AND PACK", "SEWING", "HOT LINE PREP"])} · CLIP ${rnd(100, 999, 0)}`, `${rnd(1, 4, 0)}m${rnd(10, 59, 0)}s`],
+    () => ["ANN", `HAND KP 21 × 2 · FRAME ${rnd(1000, 24000, 0)}`, "VERIFIED"],
+    () => ["ANN", `ACTION "${pick(["fasten screw", "seat connector", "fold shirt", "solder joint", "scan parcel", "swap rotor"])}" ${rnd(0.8, 6)} s`, "LABELLED"],
+    () => [id("TAC"), `GRIP PEAK ${rnd(4, 18)} N · ${pick(["INDEX TIP", "THUMB TIP", "PALM"])}`, "OK"],
+    () => [id("GAZ"), `FIXATION ${rnd(120, 900, 0)} ms`, "TARGET TAGGED"],
+    () => [id("MOT"), `WRIST ROT ${rnd(0.4, 2.2)} rad/s`, "OK"],
+    () => ["SYNC", `7 STREAMS · DRIFT ${rnd(0.1, 0.9)} ms`, "PASS"],
+    () => [id("EXO"), `CALIB REPROJ ${rnd(0.2, 0.5, 2)} px`, "PASS"],
+    () => ["PRIV", `${rnd(1, 9, 0)} FACES BLURRED · CLIP ${rnd(100, 999, 0)}`, "OK"],
+    () => ["QA", `BATCH ${rnd(7000, 9999, 0)} PASSED`, `κ ${rnd(0.9, 0.97, 2)}`],
   ];
 
   const MAX = 22;
@@ -366,7 +446,7 @@ if (form) {
 
     const data = new FormData(form);
     data.delete("website");
-    const modalities = data.getAll("modality");
+    const modalities = data.getAll("domain");
     const payload = {
       name: data.get("name").trim(),
       email: data.get("email").trim(),
@@ -374,6 +454,19 @@ if (form) {
       modalities: modalities.join(", ") || "Not specified",
       message: (data.get("message") || "").trim(),
       source: location.href,
+    };
+    // Field names as they appear in the email that lands in the inbox.
+    const emailBody = {
+      Name: payload.name,
+      Email: payload.email,
+      Company: payload.company,
+      "Domains": payload.modalities,
+      "Task to learn": payload.message || "Not specified",
+      "Submitted from": payload.source,
+      _subject: `avcon sample request: ${payload.company}`,
+      _replyto: payload.email,
+      _template: "table",
+      _captcha: "false",
     };
 
     const endpoint = form.dataset.endpoint.trim();
@@ -388,12 +481,12 @@ if (form) {
         `Name: ${payload.name}`,
         `Email: ${payload.email}`,
         `Company: ${payload.company}`,
-        `Data of interest: ${payload.modalities}`,
+        `Domains: ${payload.modalities}`,
         "",
         payload.message || "",
       ].join("\n");
       window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      showSuccess("Your email app should open with the request filled in. Hit send and we will reply with a sample pack.");
+      showSuccess("Your email app should open with the request filled in. Hit send and we will reply with annotated sample clips.");
       return;
     }
 
@@ -403,9 +496,13 @@ if (form) {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(emailBody),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const result = await res.json().catch(() => ({}));
+      // FormSubmit replies 200 with success "false" when it refuses, for example before activation.
+      if (!res.ok || result.success === false || result.success === "false") {
+        throw new Error(result.message || `HTTP ${res.status}`);
+      }
       showSuccess();
     } catch (err) {
       formStatus.textContent = `Something went wrong sending your request. Please try again or email ${form.dataset.mailto}.`;

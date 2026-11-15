@@ -1,6 +1,7 @@
 # avcon Technologies website
 
-Static marketing site for avcon Technologies, an ecocentric environmental data collection company.
+Static marketing site for avcon Technologies, which collects and annotates egocentric (first person) data of skilled
+human work, from drone repair to manufacturing to custom tasks, to train robots and physical AI.
 No framework and no build step: plain HTML, CSS and ES modules.
 
 ## Run locally
@@ -17,25 +18,35 @@ ES modules need to be served over HTTP, so opening `index.html` straight from di
 
 ```
 website/
-  index.html            Single page: hero, context, station, catalog, uses, process, ethos, CTA
+  index.html            Single page: hero, context, rig, domains, annotation, streams, uses, process, trust, CTA
   404.html              Not found page
   assets/css/styles.css Design tokens (dark and light), layout, components
-  assets/js/main.js     Theme toggle, nav state, station explorer, carousel, field log, sample form
-  assets/js/field.js    Hero animation: live contour map (marching squares on simplex noise)
+  assets/js/main.js     Theme toggle, nav, rig explorer, annotation tabs, carousel, capture log, form
+  assets/js/hands.js    Hero animation: tracked hand skeletons repairing a drone, with live labels
   favicon.svg, *.png    Icons and the 1200x630 social share image
   robots.txt, sitemap.xml, site.webmanifest
 ```
 
 ## Request sample form
 
-The "Request sample" buttons open a dialog that asks for name, work email, company, data of interest and a
-short note. It validates in the browser and has a hidden honeypot field for spam.
+The "Request sample" buttons open a dialog that asks for name, work email, company, domains needed and a
+short note on the task. It validates in the browser and has a hidden honeypot field for spam.
 
-Where submissions go is set on the `<form>` in `index.html`:
+Submissions are emailed to **outreach.pra@gmail.com** through [FormSubmit](https://formsubmit.co), a free
+form-to-email service that needs no account or server. Each request arrives as a table with the visitor's name,
+email, company, domains, task and the page they sent it from. Hitting Reply answers the visitor.
 
-- `data-endpoint=""` (default): the visitor's email app opens with the request filled in, addressed to `data-mailto`.
-- `data-endpoint="https://formspree.io/f/yourid"` (or any service that accepts a JSON POST): the request is sent
-  in the background and the visitor sees a confirmation.
+**One time activation:** the very first submission does not get delivered. FormSubmit instead sends an
+"Activate Form" email to outreach.pra@gmail.com. Click it once, from the live domain, and every request after that
+is delivered. Check spam if it does not show up.
+
+Optional: after activating, FormSubmit emails you a random alias. Put it in place of the address in
+`data-endpoint` (`https://formsubmit.co/ajax/<alias>`) so the inbox address is not visible in the page source.
+
+Settings live on the `<form>` in `index.html`:
+
+- `data-endpoint`: where the form posts. Clear it to fall back to opening the visitor's email app instead.
+- `data-mailto`: address used for that fallback and shown in the error message if sending fails.
 
 Link straight to the form with `/#request-sample`.
 
@@ -44,7 +55,9 @@ Link straight to the form with `/#request-sample`.
 Replace these placeholders:
 
 - Domain `avcontechnologies.com` in `index.html` (canonical, Open Graph, JSON-LD), `robots.txt` and `sitemap.xml`.
-- Contact email `hello@avcontechnologies.com` in `index.html` (footer, form `data-mailto`, JSON-LD).
+- Footer and JSON-LD use outreach.pra@gmail.com as the contact address; swap in a company address when you have one.
+- Rig specs (in `assets/js/main.js`), stream rates, the κ ≥ 0.90 target and the numbers in the Context section,
+  if they differ from your real hardware and process.
 - Figures in the Context section and the sensor specs in `assets/js/main.js` if they differ from the real hardware.
 
 ## Deploy
