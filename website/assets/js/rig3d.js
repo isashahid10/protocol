@@ -1,23 +1,27 @@
 /**
- * 3D capture rig: a lit, shaded mannequin at a workbench wearing the avcon rig,
- * repairing a drone. Arms are solved with two bone IK in 3D every frame.
- * Loads three.js lazily from a CDN when the figure nears the viewport; if that
- * fails, the SVG drawing in the figure stays as the fallback.
+ * 3D capture rig: a rigged human figure standing at a workbench, wearing the
+ * avcon capture rig and repairing a drone, rendered with studio environment
+ * lighting and soft shadows.
+ *
+ * The figure is the Mixamo "X Bot" (from the three.js examples). Its idle
+ * animation drives breathing and posture; on top of that the spine leans in,
+ * the head follows the work, and both arms are solved every frame with two
+ * bone IK applied straight to the skeleton, so the hands work on the drone.
+ * Rig hardware is attached to bones and follows them.
+ *
+ * three.js loads lazily (import map in index.html) when the figure nears the
+ * viewport. If WebGL or the CDN is unavailable, the SVG drawing stays.
  */
 
-const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+const MODEL_URL = new URL("../models/xbot.glb", import.meta.url).href;
 const LOOP = 10;
-const L1 = 0.3;
-const L2 = 0.28;
-
 const LABELS = {
   1: "Stereo head camera", 2: "Depth", 3: "Eye tracking", 4: "Wrist cameras", 5: "Tactile gloves",
   6: "Motion suit", 7: "Audio", 8: "Workcell cameras", 9: "Recorder and sync",
 };
-// screen offset (px) of each hotspot marker from its anchor
 const OFFSETS = {
-  1: [0, -38], 2: [42, -18], 3: [-46, -4], 4: [-48, 18], 5: [40, 34],
-  6: [52, -8], 7: [44, -10], 8: [-34, 30], 9: [-50, 14],
+  1: [0, -40], 2: [46, -16], 3: [-48, -8], 4: [-52, 10], 5: [-44, 34],
+  6: [-56, -14], 7: [48, -6], 8: [36, 26], 9: [52, 14],
 };
 
 export function initRig3d(figure) {
@@ -26,39 +30,47 @@ export function initRig3d(figure) {
     ([e]) => {
       if (!e.isIntersecting) return;
       io.disconnect();
-      import(THREE_URL)
-        .then((THREE) => build(THREE, figure))
+      Promise.all([
+        import("three"),
+        import("three/addons/loaders/GLTFLoader.js"),
+        import("three/addons/environments/RoomEnvironment.js"),
+      ])
+        .then(([THREE, { GLTFLoader }, { RoomEnvironment }]) =>
+          new GLTFLoader().loadAsync(MODEL_URL).then((gltf) => build(THREE, RoomEnvironment, gltf, figure))
+        )
         .catch(() => {
           /* keep the SVG fallback */
         });
     },
-    { rootMargin: "600px 0px" }
+    { rootMargin: "700px 0px" }
   );
   io.observe(figure);
 }
 
-function build(THREE, figure) {
+function build(THREE, RoomEnvironment, gltf, figure) {
   const test = document.createElement("canvas");
   if (!(test.getContext("webgl2") || test.getContext("webgl"))) return;
 
   const station = figure.closest("[data-station]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const css = () => getComputedStyle(document.documentElement);
-  const cssColor = (name, fb) => new THREE.Color((css().getPropertyValue(name) || fb).trim() || fb);
+  const cssColor = (name, fb) =>
+    new THREE.Color((getComputedStyle(document.documentElement).getPropertyValue(name) || fb).trim() || fb);
+  const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+  const UP = V(0, 1, 0);
 
-  /* ---------- DOM ---------- */
+  /* ---------- DOM overlay ---------- */
   const wrap = document.createElement("div");
   wrap.className = "rig3d";
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
-  const lines = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  lines.setAttribute("class", "rig3d-leads");
-  lines.setAttribute("aria-hidden", "true");
+  const leadsSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  leadsSvg.setAttribute("class", "rig3d-leads");
+  leadsSvg.setAttribute("aria-hidden", "true");
   const hud = document.createElement("div");
   hud.className = "rig3d-hud mono";
   hud.setAttribute("aria-hidden", "true");
   hud.innerHTML = '<span class="rec"></span><span class="act"></span><span class="grip"></span>';
-  wrap.append(canvas, lines, hud);
+  wrap.append(canvas, leadsSvg, hud);
   const markers = {};
   const leads = {};
   Object.keys(LABELS).forEach((id) => {
@@ -71,341 +83,374 @@ function build(THREE, figure) {
     b.addEventListener("click", () => station?.querySelector(`[data-sensor="${id}"]`)?.click());
     wrap.append(b);
     markers[id] = b;
-    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    lines.append(l);
-    leads[id] = l;
+    leads[id] = leadsSvg.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "line"));
   });
   figure.insertBefore(wrap, figure.firstChild);
 
-  /* ---------- renderer, scene, camera ---------- */
+  /* ---------- renderer and studio ---------- */
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 0.95;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
-  const LOOK = new THREE.Vector3(0, 1.08, -0.22);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  scene.environmentIntensity = 0.75;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1d1a, 0.9));
-  const key = new THREE.DirectionalLight(0xffffff, 2.2);
-  key.position.set(1.6, 3.2, 2.4);
+  const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 30);
+  const LOOK = V(0, 1.2, -0.3);
+
+  const key = new THREE.DirectionalLight(0xffffff, 2.4);
+  key.position.set(2.2, 4.2, 2.6);
   key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
-  key.shadow.camera.left = -1.2;
-  key.shadow.camera.right = 1.2;
-  key.shadow.camera.top = 1.2;
-  key.shadow.camera.bottom = -1.2;
-  key.shadow.bias = -0.0005;
+  key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left: -1.4, right: 1.4, top: 1.6, bottom: -1.2, near: 1, far: 10 });
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.02;
+  key.shadow.radius = 4;
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xffffff, 1.6);
-  rim.position.set(-2, 2.2, -2.5);
+  const rim = new THREE.DirectionalLight(0xffffff, 1.4);
+  rim.position.set(-2.5, 2.6, -3);
   scene.add(rim);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.5);
-  fill.position.set(-2, 1, 2);
-  scene.add(fill);
 
-  /* ---------- materials ---------- */
-  const accent = cssColor("--accent", "#c5ef6a");
+  let accent = cssColor("--accent", "#c5ef6a");
+
+  const std = (color, roughness, metalness = 0, extra = {}) =>
+    new THREE.MeshStandardMaterial({ color, roughness, metalness, ...extra });
   const M = {
-    skin: new THREE.MeshStandardMaterial({ color: 0xc4c8c2, roughness: 0.55, metalness: 0.05 }),
-    shirt: new THREE.MeshStandardMaterial({ color: 0x2b302c, roughness: 0.85 }),
-    device: new THREE.MeshStandardMaterial({ color: 0x1b1e1c, roughness: 0.4, metalness: 0.4 }),
-    glove: new THREE.MeshStandardMaterial({ color: 0x232724, roughness: 0.7 }),
-    glass: new THREE.MeshStandardMaterial({ color: 0x0a0c0b, roughness: 0.05, metalness: 0.9 }),
-    bench: new THREE.MeshStandardMaterial({ color: 0x3a3f3b, roughness: 0.6, metalness: 0.2 }),
-    benchTop: new THREE.MeshStandardMaterial({ color: 0x4a504b, roughness: 0.45, metalness: 0.15 }),
-    drone: new THREE.MeshStandardMaterial({ color: 0x3b403d, roughness: 0.35, metalness: 0.55 }),
-    prop: new THREE.MeshStandardMaterial({ color: 0x8c928d, roughness: 0.5, transparent: true, opacity: 0.85 }),
+    shell: std(0xd9ddd8, 0.34, 0.05),
+    joints: std(0x232724, 0.5, 0.3),
+    device: std(0x1a1d1b, 0.32, 0.55),
+    deviceTrim: std(0x3a3f3c, 0.4, 0.6),
+    glass: std(0x050606, 0.04, 0.95),
+    alu: std(0xa7ada8, 0.28, 0.9),
+    top: std(0x262a27, 0.55, 0.15),
+    mat: std(0x17251b, 0.92, 0),
+    carbon: std(0x121413, 0.38, 0.45),
+    motor: std(0x8e9590, 0.25, 0.95),
+    prop: std(0x9aa19c, 0.35, 0.1, { transparent: true, opacity: 0.8 }),
     led: new THREE.MeshBasicMaterial({ color: accent }),
-    line: new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.5, depthTest: false }),
-    fov: new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.09 }),
-    gaze: new THREE.LineDashedMaterial({ color: accent, dashSize: 0.02, gapSize: 0.015, transparent: true, opacity: 0.9 }),
-    joint: new THREE.MeshBasicMaterial({ color: accent, depthTest: false, transparent: true }),
+    line: new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.55, depthTest: false }),
+    joint: new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.95, depthTest: false }),
+    fov: new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.07 }),
+    gaze: new THREE.LineDashedMaterial({ color: accent, dashSize: 0.018, gapSize: 0.014, transparent: true, opacity: 0.8 }),
   };
 
-  const mesh = (geo, mat, parent = scene, cast = true) => {
+  const add = (geo, mat, parent = scene, cast = true) => {
     const m = new THREE.Mesh(geo, mat);
     m.castShadow = cast;
     m.receiveShadow = true;
     parent.add(m);
     return m;
   };
-  const sensor = {}; // id -> meshes whose material highlights
+  const sensor = {};
   const tag = (id, m) => ((sensor[id] = sensor[id] || []).push(m), m);
   const anchors = {};
 
-  /* ---------- environment ---------- */
-  const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), new THREE.ShadowMaterial({ opacity: 0.35 }));
-  shadowFloor.rotation.x = -Math.PI / 2;
-  shadowFloor.receiveShadow = true;
-  scene.add(shadowFloor);
-  const grid = new THREE.GridHelper(4, 20, accent, accent);
+  /* ---------- floor ---------- */
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.ShadowMaterial({ opacity: 0.42 }));
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+  const grid = new THREE.GridHelper(6, 30, accent, accent);
   grid.material.transparent = true;
-  grid.material.opacity = 0.08;
+  grid.material.opacity = 0.06;
   scene.add(grid);
 
-  // workbench
-  const top = mesh(new THREE.BoxGeometry(1.2, 0.045, 0.56), M.benchTop);
-  top.position.set(0, 0.74, 0.02);
-  [[-0.56, -0.22], [0.56, -0.22], [-0.56, 0.26], [0.56, 0.26]].forEach(([x, z]) => {
-    const leg = mesh(new THREE.BoxGeometry(0.04, 0.72, 0.04), M.bench);
-    leg.position.set(x, 0.36, z);
+  /* ---------- workbench ---------- */
+  const TOP_Y = 0.92;
+  const bench = new THREE.Group();
+  scene.add(bench);
+  const top = add(new THREE.BoxGeometry(1.3, 0.04, 0.62), M.top, bench);
+  top.position.set(0, TOP_Y - 0.02, 0.1);
+  const lip = add(new THREE.BoxGeometry(1.3, 0.006, 0.62), M.deviceTrim, bench, false);
+  lip.position.set(0, TOP_Y - 0.043, 0.1);
+  [[-0.6, -0.16], [0.6, -0.16], [-0.6, 0.36], [0.6, 0.36]].forEach(([x, z]) => {
+    const leg = add(new THREE.BoxGeometry(0.035, TOP_Y - 0.045, 0.035), M.alu, bench);
+    leg.position.set(x, (TOP_Y - 0.045) / 2, z);
   });
-  const mat = mesh(new THREE.BoxGeometry(0.5, 0.006, 0.34), new THREE.MeshStandardMaterial({ color: 0x1e3324, roughness: 0.9 }), scene, false);
-  mat.position.set(0, 0.766, -0.06);
+  [-0.16, 0.36].forEach((z) => {
+    const rail = add(new THREE.BoxGeometry(1.2, 0.025, 0.025), M.alu, bench);
+    rail.position.set(0, 0.18, z);
+  });
+  const shelf = add(new THREE.BoxGeometry(1.2, 0.015, 0.5), M.device, bench);
+  shelf.position.set(0, 0.2, 0.1);
+  const mat = add(new THREE.BoxGeometry(0.62, 0.004, 0.36), M.mat, bench, false);
+  mat.position.set(-0.02, TOP_Y + 0.002, 0.0);
 
   // drone
   const drone = new THREE.Group();
-  drone.position.set(0, 0.795, -0.06);
-  drone.scale.setScalar(1.45);
+  drone.position.set(0.0, TOP_Y + 0.035, -0.01);
+  drone.rotation.y = 0.25;
+  drone.scale.setScalar(1.55);
   scene.add(drone);
-  mesh(new THREE.BoxGeometry(0.11, 0.035, 0.08), M.drone, drone);
+  const body = add(new THREE.BoxGeometry(0.1, 0.03, 0.07), M.carbon, drone);
+  const canopy = add(new THREE.SphereGeometry(0.035, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.deviceTrim, drone);
+  canopy.scale.set(1.1, 0.5, 0.8);
+  canopy.position.y = 0.015;
   const props = [];
   [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([sx, sz], i) => {
-    const arm = mesh(new THREE.BoxGeometry(0.13, 0.012, 0.016), M.drone, drone);
-    arm.position.set(sx * 0.07, 0, sz * 0.055);
-    arm.rotation.y = -sx * sz * 0.65;
-    const motor = mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.02, 20), M.drone, drone);
-    motor.position.set(sx * 0.12, 0.008, sz * 0.09);
+    const arm = add(new THREE.BoxGeometry(0.12, 0.01, 0.014), M.carbon, drone);
+    arm.position.set(sx * 0.065, -0.004, sz * 0.05);
+    arm.rotation.y = -sx * sz * 0.66;
+    const motor = add(new THREE.CylinderGeometry(0.012, 0.013, 0.02, 24), M.motor, drone);
+    motor.position.set(sx * 0.11, 0.004, sz * 0.085);
+    const guard = add(new THREE.TorusGeometry(0.052, 0.0025, 8, 48), M.carbon, drone);
+    guard.rotation.x = Math.PI / 2;
+    guard.position.set(sx * 0.11, 0.01, sz * 0.085);
     if (i !== 1) {
-      const p = mesh(new THREE.BoxGeometry(0.11, 0.003, 0.012), M.prop, drone);
-      p.position.set(sx * 0.12, 0.021, sz * 0.09);
+      const p = add(new THREE.BoxGeometry(0.095, 0.0018, 0.01), M.prop, drone);
+      p.position.set(sx * 0.11, 0.016, sz * 0.085);
       props.push(p);
     }
   });
-  const dled = mesh(new THREE.SphereGeometry(0.005, 10, 10), M.led, drone, false);
-  dled.position.set(0, 0.012, 0.042);
-  const SCREW = new THREE.Vector3(0.1, 0.815, -0.03);
+  const dled = add(new THREE.SphereGeometry(0.004, 12, 12), M.led, drone, false);
+  dled.position.set(0.05, 0.004, 0);
+  const SCREW = V();
+  const screwMark = new THREE.Object3D();
+  screwMark.position.set(-0.07, 0.006, -0.036);
+  drone.add(screwMark);
 
-  // bit tray
-  const tray = mesh(new THREE.BoxGeometry(0.1, 0.02, 0.07), M.device);
-  tray.position.set(0.32, 0.77, -0.1);
+  // parts tray and spare props
+  const tray = add(new THREE.BoxGeometry(0.12, 0.018, 0.08), M.deviceTrim);
+  tray.position.set(-0.36, TOP_Y + 0.009, -0.06);
+  for (let i = 0; i < 3; i++) {
+    const bit = add(new THREE.CylinderGeometry(0.003, 0.003, 0.03, 8), M.alu, tray, false);
+    bit.position.set(-0.03 + i * 0.02, 0.016, 0);
+  }
 
-  // workcell cameras
+  // workcell cameras on aluminium posts
   [-1, 1].forEach((s) => {
-    const pole = mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.6, 12), M.device);
-    pole.position.set(s * 0.62, 1.95, -0.8);
-    const cam = mesh(new THREE.BoxGeometry(0.1, 0.06, 0.08), M.device);
-    cam.position.set(s * 0.62, 1.63, -0.8);
-    cam.lookAt(0, 0.8, -0.05);
-    const lens = mesh(new THREE.CylinderGeometry(0.02, 0.022, 0.03, 20), M.glass, cam);
+    const post = add(new THREE.CylinderGeometry(0.012, 0.012, 1.7, 16), M.alu);
+    post.position.set(s * 1.0, 0.85, -1.2);
+    const cam = add(new THREE.BoxGeometry(0.11, 0.065, 0.085), M.device);
+    cam.position.set(s * 1.0, 1.72, -1.2);
+    cam.lookAt(0, TOP_Y, 0);
+    const lens = add(new THREE.CylinderGeometry(0.022, 0.024, 0.03, 24), M.glass, cam);
     lens.rotation.x = Math.PI / 2;
-    lens.position.z = 0.05;
+    lens.position.z = 0.055;
+    const led = add(new THREE.SphereGeometry(0.004, 8, 8), M.led, cam, false);
+    led.position.set(0.04, 0.024, 0.043);
     tag(8, cam);
     if (s > 0) anchors[8] = cam;
     const pts = [];
-    [[-0.6, -0.25], [0.6, -0.25], [-0.6, 0.3], [0.6, 0.3]].forEach(([x, z]) => {
-      pts.push(cam.position.clone(), new THREE.Vector3(x, 0.765, z));
-    });
+    [[-0.55, -0.18], [0.55, -0.18], [-0.55, 0.38], [0.55, 0.38]].forEach(([x, z]) =>
+      pts.push(cam.position.clone(), V(x, TOP_Y, z))
+    );
     scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), M.fov));
   });
 
-  /* ---------- body ---------- */
-  const profile = [[0, 0], [0.13, 0], [0.135, 0.08], [0.145, 0.2], [0.165, 0.32], [0.17, 0.4], [0.155, 0.46], [0.11, 0.5], [0.05, 0.52], [0, 0.52]]
-    .map(([r, y]) => new THREE.Vector2(r, y));
-  const torso = mesh(new THREE.LatheGeometry(profile, 40), M.shirt);
-  torso.scale.set(1.22, 1, 0.68);
-  torso.position.set(0, 0.8, -0.46);
-  const chestIMU = tag(6, mesh(new THREE.BoxGeometry(0.045, 0.035, 0.015), M.device));
-  chestIMU.position.set(0, 1.18, -0.345);
-  const neck = mesh(new THREE.CylinderGeometry(0.042, 0.05, 0.1, 20), M.skin);
-  neck.position.set(0, 1.36, -0.46);
-  const shoulders = [-1, 1].map((s) => {
-    const sh = mesh(new THREE.SphereGeometry(0.062, 24, 16), M.shirt);
-    sh.position.set(s * 0.19, 1.27, -0.46);
-    return sh.position.clone();
+  /* ---------- figure ---------- */
+  const root = gltf.scene;
+  root.traverse((o) => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      o.receiveShadow = true;
+      o.frustumCulled = false;
+      o.material = /joint/i.test(o.name) ? M.joints : M.shell;
+    }
   });
+  root.updateMatrixWorld(true);
+  const size = new THREE.Box3().setFromObject(root).getSize(V());
+  root.scale.multiplyScalar(1.75 / size.y);
+  root.updateMatrixWorld(true);
 
-  // head group pivots at the top of the neck
-  const head = new THREE.Group();
-  head.position.set(0, 1.4, -0.46);
-  head.scale.setScalar(1.12);
-  head.rotation.order = "YXZ";
-  scene.add(head);
-  const skull = mesh(new THREE.SphereGeometry(0.1, 32, 24), M.skin, head);
-  skull.scale.set(0.88, 1.12, 1);
-  skull.position.y = 0.1;
-  const jaw = mesh(new THREE.SphereGeometry(0.07, 24, 16), M.skin, head);
-  jaw.scale.set(1, 0.9, 1);
-  jaw.position.set(0, 0.04, 0.025);
-  const band = mesh(new THREE.TorusGeometry(0.093, 0.011, 12, 48), M.device, head);
-  band.rotation.x = Math.PI / 2;
-  band.position.y = 0.14;
-  band.scale.set(0.95, 1.12, 1);
-  const camBox = tag(1, mesh(new THREE.BoxGeometry(0.09, 0.034, 0.03), M.device, head));
-  camBox.position.set(0, 0.155, 0.105);
-  anchors[1] = camBox;
+  const bone = (n) => root.getObjectByName("mixamorig" + n) || root.getObjectByName("mixamorig:" + n);
+  const B = {};
+  ["Hips", "Spine", "Spine1", "Spine2", "Neck", "Head", "HeadTop_End"].forEach((n) => (B[n] = bone(n)));
+  ["Left", "Right"].forEach((s) => {
+    ["Arm", "ForeArm", "Hand", "HandMiddle1"].forEach((n) => (B[s + n] = bone(s + n)));
+    ["Thumb", "Index", "Middle", "Ring", "Pinky"].forEach((f) => {
+      for (let k = 1; k <= 4; k++) B[`${s}Hand${f}${k}`] = bone(`${s}Hand${f}${k}`);
+    });
+  });
+  const wp = (o) => o.getWorldPosition(V());
+  const wq = (o) => o.getWorldQuaternion(new THREE.Quaternion());
+
+  // record rest pose (T pose, root at origin) for attaching hardware
+  const rest = new Map();
+  Object.values(B).forEach((b) => b && rest.set(b, { p: wp(b), q: wq(b) }));
+  const L1 = wp(B.LeftArm).distanceTo(wp(B.LeftForeArm));
+  const L2 = wp(B.LeftForeArm).distanceTo(wp(B.LeftHand));
+  const headH = wp(B.HeadTop_End).y - wp(B.Head).y;
+
+  // attachments: authored in rest space, then carried by their bone each frame
+  const attached = [];
+  function attach(b, obj, restPos, restQuat = new THREE.Quaternion()) {
+    const r = rest.get(b);
+    attached.push({ b, obj, off: restPos.clone().sub(r.p), rq: r.q.clone(), oq: restQuat.clone() });
+    scene.add(obj);
+    return obj;
+  }
+  const headP = wp(B.Head);
+  const hc = V(0, headP.y + headH * 0.52, headP.z + 0.005);
+  const R = headH * 0.6;
+
+  // headset
+  const band = new THREE.Mesh(new THREE.TorusGeometry(R * 0.98, 0.009, 12, 64), M.device);
+  band.castShadow = true;
+  attach(B.Head, band, hc.clone().add(V(0, R * 0.12, 0)), new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2 - 0.12, 0, 0)));
+  band.scale.set(1, 1.12, 1);
+  const camBox = tag(1, add(new THREE.BoxGeometry(0.084, 0.03, 0.032), M.device, scene));
+  attach(B.Head, camBox, hc.clone().add(V(0, R * 0.48, R * 0.92)));
   [-0.022, 0.022].forEach((x) => {
-    const l = mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.012, 20), M.glass, camBox);
+    const l = add(new THREE.CylinderGeometry(0.0105, 0.0105, 0.012, 24), M.glass, camBox, false);
     l.rotation.x = Math.PI / 2;
     l.position.set(x, 0, 0.018);
+    const ring = add(new THREE.TorusGeometry(0.0115, 0.0018, 8, 24), M.alu, camBox, false);
+    ring.position.set(x, 0, 0.0185);
   });
-  const camLed = mesh(new THREE.SphereGeometry(0.003, 8, 8), M.led, camBox, false);
-  camLed.position.set(0, 0.012, 0.016);
-  const depth = tag(2, mesh(new THREE.BoxGeometry(0.022, 0.045, 0.03), M.device, head));
-  depth.position.set(0.092, 0.13, 0.03);
+  const camLed = add(new THREE.SphereGeometry(0.0028, 8, 8), M.led, camBox, false);
+  camLed.position.set(0.034, 0.009, 0.017);
+  anchors[1] = camBox;
+  const depth = tag(2, add(new THREE.BoxGeometry(0.024, 0.044, 0.034), M.device, scene));
+  attach(B.Head, depth, hc.clone().add(V(R * 1.02, R * 0.1, R * 0.15)));
   anchors[2] = depth;
-  const visor = tag(3, mesh(new THREE.BoxGeometry(0.13, 0.009, 0.012), M.device, head));
-  visor.position.set(0, 0.09, 0.098);
-  [-1, 1].forEach((s) => {
-    const eyeCam = tag(3, mesh(new THREE.SphereGeometry(0.007, 12, 12), M.glass, head));
-    eyeCam.position.set(s * 0.032, 0.082, 0.104);
-    if (s < 0) anchors[3] = eyeCam;
-    const temple = tag(3, mesh(new THREE.BoxGeometry(0.008, 0.008, 0.09), M.device, head));
-    temple.position.set(s * 0.066, 0.092, 0.055);
+  const visor = tag(3, add(new THREE.BoxGeometry(R * 1.55, 0.007, 0.009), M.deviceTrim, scene));
+  attach(B.Head, visor, hc.clone().add(V(0, -R * 0.12, R * 1.0)));
+  const eyeCams = [-1, 1].map((s) => {
+    const e = tag(3, add(new THREE.SphereGeometry(0.0065, 12, 12), M.glass, scene));
+    attach(B.Head, e, hc.clone().add(V(s * R * 0.36, -R * 0.2, R * 0.98)));
+    return e;
   });
-  const eyeOrigin = new THREE.Object3D();
-  eyeOrigin.position.set(0, 0.09, 0.1);
-  head.add(eyeOrigin);
+  anchors[3] = eyeCams[1];
 
-  const mic = tag(7, mesh(new THREE.CapsuleGeometry(0.008, 0.02, 4, 12), M.device));
-  mic.position.set(0.06, 1.25, -0.35);
+  // torso hardware
+  const sp2 = wp(B.Spine2);
+  const chestIMU = tag(6, add(new THREE.BoxGeometry(0.05, 0.036, 0.016), M.device, scene));
+  attach(B.Spine2, chestIMU, V(0, sp2.y + 0.02, sp2.z + 0.125));
+  const harness = add(new THREE.BoxGeometry(0.012, 0.32, 0.008), M.device, scene);
+  attach(B.Spine2, harness, V(0.075, sp2.y - 0.02, sp2.z + 0.118), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0.22)));
+  const mic = tag(7, add(new THREE.CapsuleGeometry(0.007, 0.018, 4, 12), M.device, scene));
+  attach(B.Spine2, mic, V(-0.05, sp2.y + 0.13, sp2.z + 0.1));
   anchors[7] = mic;
-  const recorder = tag(9, mesh(new THREE.BoxGeometry(0.1, 0.06, 0.03), M.device));
-  recorder.position.set(-0.07, 0.92, -0.36);
+  const hipsP = wp(B.Hips);
+  const recorder = tag(9, add(new THREE.BoxGeometry(0.095, 0.062, 0.032), M.device, scene));
+  attach(B.Hips, recorder, V(0.08, hipsP.y + 0.03, hipsP.z + 0.115));
+  const recLed = add(new THREE.SphereGeometry(0.0035, 8, 8), M.led, recorder, false);
+  recLed.position.set(0.03, 0.017, 0.017);
   anchors[9] = recorder;
-  const recLed = mesh(new THREE.SphereGeometry(0.005, 10, 10), M.led, recorder, false);
-  recLed.position.set(0.035, 0.015, 0.016);
-  const cablePath = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0.06, 1.24, -0.345), new THREE.Vector3(0.06, 1.12, -0.335),
-    new THREE.Vector3(0.0, 1.0, -0.345), new THREE.Vector3(-0.05, 0.945, -0.355),
-  ]);
-  mesh(new THREE.TubeGeometry(cablePath, 40, 0.003, 6), M.device, scene, false);
-  const pulses = [0, 1, 2].map(() => mesh(new THREE.SphereGeometry(0.006, 10, 10), M.led, scene, false));
 
-  /* ---------- arms and hands ---------- */
-  const UP = new THREE.Vector3(0, 1, 0);
-  function segment(r, len, material) {
-    const m = mesh(new THREE.CapsuleGeometry(r, len, 8, 20), material);
-    m.userData.len = len;
-    return m;
-  }
-  function placeBetween(m, A, B) {
-    const d = new THREE.Vector3().subVectors(B, A);
-    m.position.copy(A).addScaledVector(d, 0.5);
-    m.quaternion.setFromUnitVectors(UP, d.normalize());
-  }
-
-  function buildHand(thumbSign) {
-    const g = new THREE.Group();
-    scene.add(g);
-    const inner = new THREE.Group();
-    inner.scale.setScalar(1.35);
-    g.add(inner);
-    const palm = tag(5, mesh(new THREE.BoxGeometry(0.075, 0.085, 0.026), M.glove, inner));
-    palm.position.y = 0.045;
-    const tips = [];
-    [-0.027, -0.009, 0.009, 0.027].forEach((x, i) => {
-      const len = [0.05, 0.058, 0.055, 0.044][i];
-      const fg = new THREE.Group();
-      fg.position.set(x, 0.088, 0);
-      fg.rotation.x = 0.55;
-      inner.add(fg);
-      const f1 = tag(5, mesh(new THREE.CapsuleGeometry(0.0095, len, 4, 12), M.glove, fg));
-      f1.position.y = len / 2;
-      const tip = mesh(new THREE.SphereGeometry(0.006, 10, 10), M.led, fg, false);
-      tip.position.set(0, len + 0.006, 0.006);
-      tips.push(tip);
-    });
-    const th = new THREE.Group();
-    th.position.set(thumbSign * 0.035, 0.03, 0.004);
-    th.rotation.z = -thumbSign * 0.9;
-    th.rotation.x = 0.3;
-    inner.add(th);
-    const t1 = tag(5, mesh(new THREE.CapsuleGeometry(0.011, 0.045, 4, 12), M.glove, th));
-    t1.position.y = 0.03;
-    return { g, palm };
-  }
-
-  const arms = [-1, 1].map((s, i) => {
-    const upper = segment(0.05, L1 - 0.06, M.shirt);
-    const fore = segment(0.042, L2 - 0.06, M.skin);
-    const elbow = mesh(new THREE.SphereGeometry(0.046, 20, 14), M.shirt);
-    const imuU = tag(6, mesh(new THREE.BoxGeometry(0.04, 0.05, 0.016), M.device));
-    const imuF = tag(6, mesh(new THREE.BoxGeometry(0.036, 0.044, 0.014), M.device));
-    const wcam = tag(4, mesh(new THREE.BoxGeometry(0.034, 0.024, 0.03), M.device));
-    const wlens = mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.01, 14), M.glass, wcam);
-    wlens.rotation.x = Math.PI / 2;
-    wlens.position.z = 0.017;
-    const hand = buildHand(-s);
-    if (s > 0) {
-      anchors[4] = wcam;
-      anchors[5] = hand.palm;
-      anchors[6] = imuU;
+  // arm hardware
+  ["Left", "Right"].forEach((s) => {
+    const a = wp(B[s + "Arm"]);
+    const f = wp(B[s + "ForeArm"]);
+    const h = wp(B[s + "Hand"]);
+    const up = tag(6, add(new THREE.BoxGeometry(0.05, 0.016, 0.04), M.device, scene));
+    attach(B[s + "Arm"], up, a.clone().lerp(f, 0.55).add(V(0, 0.052, 0)));
+    const fo = tag(6, add(new THREE.BoxGeometry(0.046, 0.014, 0.036), M.device, scene));
+    attach(B[s + "ForeArm"], fo, f.clone().lerp(h, 0.42).add(V(0, 0.043, 0)));
+    const cam = tag(4, add(new THREE.BoxGeometry(0.03, 0.022, 0.03), M.device, scene));
+    attach(B[s + "ForeArm"], cam, f.clone().lerp(h, 0.84).add(V(0, 0.038, 0)));
+    const lens = add(new THREE.CylinderGeometry(0.0075, 0.0075, 0.01, 16), M.glass, cam, false);
+    lens.rotation.z = Math.PI / 2;
+    lens.position.x = s === "Left" ? 0.017 : -0.017;
+    if (s === "Right") {
+      anchors[6] = up;
+      anchors[4] = cam;
     }
-    return { s, S: shoulders[i], upper, fore, elbow, imuU, imuF, wcam, hand };
+    // tactile glove: pads on every fingertip and the palm
+    ["Thumb", "Index", "Middle", "Ring", "Pinky"].forEach((fn) => {
+      const tip = B[`${s}Hand${fn}4`];
+      if (!tip) return;
+      const pad = tag(5, add(new THREE.SphereGeometry(0.0075, 12, 12), M.led, scene, false));
+      attach(tip, pad, wp(tip).add(V(0, -0.006, 0)));
+    });
+    const palm = tag(5, add(new THREE.BoxGeometry(0.06, 0.004, 0.05), M.deviceTrim, scene));
+    attach(B[s + "Hand"], palm, h.clone().add(V(s === "Left" ? 0.045 : -0.045, -0.018, 0)));
+    if (s === "Right") anchors[5] = palm;
   });
+
+  // place the figure behind the bench
+  root.position.set(0, 0, -0.44);
+  scene.add(root);
 
   // screwdriver
-  const shaft = mesh(new THREE.CylinderGeometry(0.0025, 0.0025, 1, 8), new THREE.MeshStandardMaterial({ color: 0xb8bcb9, metalness: 0.9, roughness: 0.25 }));
-  const handleM = mesh(new THREE.CapsuleGeometry(0.012, 0.07, 6, 14), new THREE.MeshStandardMaterial({ color: accent, roughness: 0.5 }));
+  const shaft = add(new THREE.CylinderGeometry(0.0022, 0.0022, 1, 10), M.alu);
+  const handle = add(new THREE.CapsuleGeometry(0.0115, 0.075, 6, 16), M.device);
+  const band2 = add(new THREE.CylinderGeometry(0.0122, 0.0122, 0.008, 16), M.led, handle, false);
+  band2.position.y = -0.03;
+
+  // idle animation for breathing and weight shift
+  const restLocal = [];
+  root.traverse((o) => o.isBone && restLocal.push([o, o.quaternion.clone()]));
+  const mixer = new THREE.AnimationMixer(root);
+  const idle = gltf.animations.find((a) => a.name === "idle") || gltf.animations[0];
+  if (idle) mixer.clipAction(idle).play();
+
+  /* ---------- skeleton helpers ---------- */
+  const q1 = new THREE.Quaternion();
+  function setWorldQuat(b, worldQ) {
+    const pq = wq(b.parent).invert();
+    b.quaternion.copy(pq.multiply(worldQ));
+    b.updateMatrixWorld(true);
+  }
+  function rotateWorld(b, axis, angle) {
+    q1.setFromAxisAngle(axis, angle);
+    setWorldQuat(b, q1.clone().multiply(wq(b)));
+  }
+  function aim(b, child, target) {
+    const p = wp(b);
+    const cur = wp(child).sub(p).normalize();
+    const des = target.clone().sub(p).normalize();
+    q1.setFromUnitVectors(cur, des);
+    setWorldQuat(b, q1.clone().multiply(wq(b)));
+  }
+  function solve(S, T, pole) {
+    const d = T.clone().sub(S);
+    let dist = Math.min(Math.max(d.length(), Math.abs(L1 - L2) + 0.01), L1 + L2 - 0.004);
+    const dir = d.normalize();
+    const a = (L1 * L1 + dist * dist - L2 * L2) / (2 * dist);
+    const h = Math.sqrt(Math.max(L1 * L1 - a * a, 0));
+    const p = pole.clone().addScaledVector(dir, -pole.dot(dir)).normalize();
+    return { E: S.clone().addScaledVector(dir, a).addScaledVector(p, h), W: S.clone().addScaledVector(dir, dist) };
+  }
+  function poseArm(side, target, fingerDir, roll, curl) {
+    const sx = side === "Left" ? 1 : -1;
+    const S = wp(B[side + "Arm"]);
+    const { E, W } = solve(S, target, V(sx, -0.55, -0.45).normalize());
+    aim(B[side + "Arm"], B[side + "ForeArm"], E);
+    aim(B[side + "ForeArm"], B[side + "Hand"], W);
+    aim(B[side + "Hand"], B[side + "HandMiddle1"], W.clone().add(fingerDir));
+    if (roll) rotateWorld(B[side + "Hand"], W.clone().sub(E).normalize(), roll);
+    const axis = new THREE.Vector3().crossVectors(fingerDir, V(0, -1, 0)).normalize();
+    ["Index", "Middle", "Ring", "Pinky"].forEach((f) =>
+      [1, 2, 3].forEach((k) => B[`${side}Hand${f}${k}`] && rotateWorld(B[`${side}Hand${f}${k}`], axis, curl * [0.5, 0.75, 0.55][k - 1]))
+    );
+    [2, 3].forEach((k) => B[`${side}HandThumb${k}`] && rotateWorld(B[`${side}HandThumb${k}`], axis, curl * 0.4));
+    return { E, W };
+  }
 
   /* ---------- mocap overlay and gaze ---------- */
+  const SKEL = [
+    ["LeftArm", "LeftForeArm"], ["LeftForeArm", "LeftHand"], ["RightArm", "RightForeArm"], ["RightForeArm", "RightHand"],
+    ["LeftArm", "RightArm"], ["Neck", "Head"], ["Neck", "Spine2"], ["Spine2", "Hips"],
+  ];
   const skelGeo = new THREE.BufferGeometry();
-  skelGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(10 * 3), 3));
+  skelGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(SKEL.length * 6), 3));
   const skel = new THREE.LineSegments(skelGeo, M.line);
   skel.renderOrder = 10;
   scene.add(skel);
-  const jointDots = Array.from({ length: 7 }, () => {
-    const d = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), M.joint);
+  const DOTS = ["LeftArm", "LeftForeArm", "LeftHand", "RightArm", "RightForeArm", "RightHand", "Neck", "Head", "Spine2", "Hips"];
+  const dots = DOTS.map(() => {
+    const d = new THREE.Mesh(new THREE.SphereGeometry(0.008, 12, 12), M.joint);
     d.renderOrder = 11;
     scene.add(d);
     return d;
   });
-  const gazeGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-  const gaze = new THREE.Line(gazeGeo, M.gaze);
+  const gaze = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(), V()]), M.gaze);
   scene.add(gaze);
-  const gazeRing = new THREE.Mesh(new THREE.RingGeometry(0.014, 0.018, 32), new THREE.MeshBasicMaterial({ color: accent, side: THREE.DoubleSide }));
+  const gazeRing = new THREE.Mesh(
+    new THREE.RingGeometry(0.012, 0.0155, 40),
+    new THREE.MeshBasicMaterial({ color: accent, side: THREE.DoubleSide, transparent: true })
+  );
   gazeRing.rotation.x = -Math.PI / 2;
   scene.add(gazeRing);
 
-  /* ---------- solve ---------- */
-  const tmp = new THREE.Vector3();
-  function ik(S, T, pole) {
-    const d = tmp.subVectors(T, S);
-    let dist = d.length();
-    dist = Math.min(Math.max(dist, Math.abs(L1 - L2) + 0.01), L1 + L2 - 0.005);
-    const dir = d.clone().normalize();
-    const a = (L1 * L1 + dist * dist - L2 * L2) / (2 * dist);
-    const h = Math.sqrt(Math.max(L1 * L1 - a * a, 0));
-    const p = pole.clone().addScaledVector(dir, -pole.dot(dir)).normalize();
-    const E = S.clone().addScaledVector(dir, a).addScaledVector(p, h);
-    const W = S.clone().addScaledVector(dir, dist);
-    return { E, W };
-  }
-
-  function poseArm(A, target, roll) {
-    const pole = new THREE.Vector3(A.s, -0.35, -0.6).normalize();
-    const { E, W } = ik(A.S, target, pole);
-    placeBetween(A.upper, A.S, E);
-    placeBetween(A.fore, E, W);
-    A.elbow.position.copy(E);
-    const along = (m, P, Q, t, out) => {
-      const d = new THREE.Vector3().subVectors(Q, P).normalize();
-      const side = new THREE.Vector3(A.s, 0, 0).addScaledVector(d, -A.s * d.x).normalize();
-      m.position.copy(P).lerp(Q, t).addScaledVector(side, out);
-      m.quaternion.setFromUnitVectors(UP, d);
-    };
-    along(A.imuU, A.S, E, 0.55, 0.05);
-    along(A.imuF, E, W, 0.45, 0.042);
-    along(A.wcam, E, W, 0.86, 0.038);
-    // hand frame: fingers continue the forearm, palm faces the bench
-    const f = new THREE.Vector3().subVectors(W, E).normalize();
-    f.y = Math.max(f.y, -0.55);
-    f.normalize();
-    const n = new THREE.Vector3(0, -1, 0).addScaledVector(f, f.y).normalize();
-    const side = new THREE.Vector3().crossVectors(f, n).normalize();
-    const m = new THREE.Matrix4().makeBasis(side, f, n);
-    A.hand.g.quaternion.setFromRotationMatrix(m);
-    A.hand.g.rotateY(roll);
-    A.hand.g.position.copy(W);
-    return { E, W, f, n };
-  }
-
-  /* ---------- sizing and projection ---------- */
+  /* ---------- sizing ---------- */
   let w = 1;
   let h = 1;
   function resize() {
@@ -414,29 +459,33 @@ function build(THREE, figure) {
     h = Math.max(1, r.height);
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.fov = w / h < 0.9 ? 34 : 30;
     camera.updateProjectionMatrix();
-    lines.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    leadsSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   }
   new ResizeObserver(resize).observe(wrap);
   resize();
 
+  /* ---------- selection ---------- */
   let active = "1";
   function setActive(id) {
     active = String(id);
-    Object.entries(sensor).forEach(([sid, list]) => {
+    Object.entries(sensor).forEach(([sid, list]) =>
       list.forEach((m) => {
-        if (!m.userData.baseMat) m.userData.baseMat = m.material;
+        if (m.material.isMeshBasicMaterial) {
+          m.scale.setScalar(sid === active ? 1.5 : 1);
+          return;
+        }
+        if (!m.userData.base) m.userData.base = m.material;
         if (sid === active) {
-          if (!m.userData.hiMat) {
-            m.userData.hiMat = m.userData.baseMat.clone();
-            m.userData.hiMat.emissive = accent.clone();
-            m.userData.hiMat.emissiveIntensity = 0.55;
+          if (!m.userData.hi) {
+            m.userData.hi = m.userData.base.clone();
+            m.userData.hi.emissive = accent.clone();
+            m.userData.hi.emissiveIntensity = 0.32;
           }
-          m.material = m.userData.hiMat;
-        } else m.material = m.userData.baseMat;
-      });
-    });
+          m.material = m.userData.hi;
+        } else m.material = m.userData.base;
+      })
+    );
     Object.entries(markers).forEach(([k, b]) => b.classList.toggle("is-active", k === active));
   }
   station?.addEventListener("sensor-select", (e) => setActive(e.detail));
@@ -445,34 +494,46 @@ function build(THREE, figure) {
 
   /* ---------- frame ---------- */
   let t = 0.4;
-  const v = new THREE.Vector3();
   const smooth = (x) => x * x * (3 - 2 * x);
+  const tmpV = V();
   const hudEls = hud.children;
+  let pointerX = 0;
+  let pointerY = 0;
 
-  function render() {
+  function update(dt) {
+    restLocal.forEach(([b, q]) => b.quaternion.copy(q));
+    mixer.update(dt);
+    root.updateMatrixWorld(true);
+
     const lt = t % LOOP;
-    const om = Math.PI * 2 * 1.5;
-    const baseR = new THREE.Vector3(0.15, 0.865, -0.13);
-    const baseL = new THREE.Vector3(-0.15, 0.855, -0.12);
-    const trayW = new THREE.Vector3(0.29, 0.88, -0.15);
+    const om = Math.PI * 2 * 1.4;
+    drone.updateMatrixWorld(true);
+    screwMark.getWorldPosition(SCREW);
+
+    // lean into the bench, head follows the work
+    rotateWorld(B.Spine1, V(1, 0, 0), 0.16);
+    rotateWorld(B.Spine2, V(1, 0, 0), 0.08);
+
     let reach = 0;
     let action = "fasten screw";
     let grip = 0;
     let roll = 0;
-    let R = baseR.clone();
+    const baseR = V(-0.11, TOP_Y + 0.085, -0.1);
+    const trayW = V(-0.34, TOP_Y + 0.07, -0.13);
+    let target = baseR.clone();
     if (lt < 6) {
       const k = Math.min(1, lt * 2, (6 - lt) * 2);
-      R.x += Math.cos(t * om) * 0.008 * k;
-      R.z += Math.sin(t * om) * 0.006 * k;
-      roll = Math.sin(t * om) * 0.35 * k;
-      grip = 8.6 + Math.abs(Math.sin(t * om)) * 2.4 * k;
+      target.x += Math.cos(t * om) * 0.006 * k;
+      target.z += Math.sin(t * om) * 0.005 * k;
+      roll = Math.sin(t * om) * 0.45 * k;
+      grip = 8.4 + Math.abs(Math.sin(t * om)) * 2.6 * k;
     } else if (lt < 7) {
       reach = smooth(lt - 6);
       action = "reach for bit";
     } else if (lt < 8) {
       reach = 1;
       action = "pick bit";
-      grip = 2.1;
+      grip = 2.1 + Math.sin(t * 8) * 0.2;
     } else if (lt < 9.2) {
       reach = 1 - smooth((lt - 8) / 1.2);
       action = "return to frame";
@@ -481,62 +542,77 @@ function build(THREE, figure) {
       action = "align bit to screw";
       grip = 3.4;
     }
-    if (reach) R = baseR.clone().lerp(trayW, reach).add(new THREE.Vector3(0, Math.sin(reach * Math.PI) * 0.06, 0));
-    const Lp = baseL.clone().add(new THREE.Vector3(Math.sin(t * 0.8) * 0.004, 0, Math.cos(t * 0.6) * 0.003));
+    if (reach) target = baseR.clone().lerp(trayW, reach).add(V(0, Math.sin(reach * Math.PI) * 0.07, 0));
+    const leftT = V(0.13 + Math.sin(t * 0.7) * 0.004, TOP_Y + 0.07, -0.08 + Math.cos(t * 0.5) * 0.003);
 
-    const left = poseArm(arms[0], Lp, 0);
-    const right = poseArm(arms[1], R, roll);
+    const fwdR = V(0.25, -0.75, 1).normalize().multiplyScalar(0.1);
+    const fwdL = V(-0.3, -0.85, 1).normalize().multiplyScalar(0.1);
+    const R = poseArm("Right", target, fwdR, roll, 0.9);
+    poseArm("Left", leftT, fwdL, 0, 0.35);
 
-    // screwdriver in the right hand
-    const gripPt = right.W.clone().addScaledVector(right.f, 0.09).addScaledVector(right.n, 0.035);
-    const tipPt = reach > 0.02 ? gripPt.clone().addScaledVector(right.f, 0.09).addScaledVector(right.n, 0.02) : SCREW.clone();
-    const sd = new THREE.Vector3().subVectors(gripPt, tipPt);
-    shaft.position.copy(tipPt).addScaledVector(sd, 0.5);
+    // screwdriver in the right fist
+    const fd = fwdR.clone().normalize();
+    const gripPt = R.W.clone().addScaledVector(fd, 0.07).add(V(0, -0.02, 0));
+    const tip = reach > 0.02 ? gripPt.clone().add(V(0.04, -0.07, 0.03)) : SCREW.clone();
+    const sd = gripPt.clone().sub(tip);
+    shaft.position.copy(tip).addScaledVector(sd, 0.5);
     shaft.scale.y = sd.length();
     shaft.quaternion.setFromUnitVectors(UP, sd.clone().normalize());
-    handleM.position.copy(gripPt).addScaledVector(sd.clone().normalize(), 0.03);
-    handleM.quaternion.copy(shaft.quaternion);
+    handle.position.copy(gripPt).addScaledVector(sd.clone().normalize(), 0.032);
+    handle.quaternion.copy(shaft.quaternion);
 
-    // head follows the work
-    const target = reach > 0.35 ? right.W.clone().addScaledVector(right.f, 0.08) : tipPt;
-    const hp = head.position;
-    head.rotation.y = Math.atan2(target.x - hp.x, target.z - hp.z) * 0.7;
-    head.rotation.x = 0.42 + Math.sin(t * 0.9) * 0.015;
-    head.updateMatrixWorld();
-    const eye = eyeOrigin.getWorldPosition(new THREE.Vector3());
-    gaze.geometry.setFromPoints([eye, target]);
-    gaze.computeLineDistances();
-    gazeRing.position.copy(target).add(new THREE.Vector3(0, 0.004, 0));
-    gazeRing.scale.setScalar(1 + Math.sin(t * 6) * 0.15);
+    // head: tilt down and turn toward the work
+    const look = reach > 0.35 ? R.W.clone() : tip.clone();
+    const hp = wp(B.Head);
+    rotateWorld(B.Neck, V(1, 0, 0), 0.22);
+    rotateWorld(B.Head, V(1, 0, 0), 0.32);
+    rotateWorld(B.Head, UP, Math.atan2(look.x - hp.x, look.z - hp.z) * 0.6);
 
-    // skeleton overlay
+    // hardware follows bones
+    attached.forEach((a) => {
+      const bq = wq(a.b);
+      const dq = bq.clone().multiply(a.rq.clone().invert());
+      a.obj.position.copy(wp(a.b)).add(a.off.clone().applyQuaternion(dq));
+      a.obj.quaternion.copy(dq).multiply(a.oq);
+    });
+
+    // overlays
     const P = skelGeo.attributes.position;
-    const neckTop = new THREE.Vector3(0, 1.4, -0.46);
-    const pts = [arms[0].S, left.E, left.E, left.W, arms[1].S, right.E, right.E, right.W, arms[0].S, arms[1].S];
-    pts.forEach((p, i) => P.setXYZ(i, p.x, p.y, p.z));
+    SKEL.forEach(([a, b], i) => {
+      const pa = wp(B[a]);
+      const pb = wp(B[b]);
+      P.setXYZ(i * 2, pa.x, pa.y, pa.z);
+      P.setXYZ(i * 2 + 1, pb.x, pb.y, pb.z);
+    });
     P.needsUpdate = true;
-    [arms[0].S, left.E, left.W, arms[1].S, right.E, right.W, neckTop].forEach((p, i) => jointDots[i].position.copy(p));
+    DOTS.forEach((n, i) => dots[i].position.copy(wp(B[n])));
+    const eye = wp(eyeCams[0]).lerp(wp(eyeCams[1]), 0.5);
+    gaze.geometry.setFromPoints([eye, look]);
+    gaze.computeLineDistances();
+    gazeRing.position.copy(look).add(V(0, 0.003, 0));
+    gazeRing.scale.setScalar(1 + Math.sin(t * 5) * 0.12);
 
-    // props spin, data pulses run down the cable
-    props.forEach((p, i) => (p.rotation.y = t * (i === 2 ? 0.4 : 1.2) + i));
-    pulses.forEach((p, i) => p.position.copy(cablePath.getPoint(((t * 0.6 + i / 3) % 1))));
-    M.led.color.copy(accent);
+    props.forEach((p, i) => (p.rotation.y = t * (i === 2 ? 0.5 : 1.6) + i * 1.3));
 
-    // camera drifts slowly around the bench
-    const ang = Math.sin(t * 0.18) * 0.32 + pointerX * 0.15;
-    const narrow = w / h < 0.9;
-    const dist = narrow ? 3.3 : 3.0;
-    camera.position.set(Math.sin(ang) * dist, 2.05 + pointerY * 0.08, LOOK.z + Math.cos(ang) * dist);
+    hudEls[0].textContent = `REC 00:${t.toFixed(2).padStart(5, "0")}`;
+    hudEls[1].textContent = `ACTION ${action}`;
+    hudEls[2].textContent = `GRIP R ${grip.toFixed(1)} N`;
+  }
+
+  function draw() {
+    const narrow = w / h < 0.85;
+    const ang = 0.42 + Math.sin(t * 0.16) * 0.22 + pointerX * 0.12;
+    const dist = narrow ? 4.0 : 3.55;
+    camera.fov = narrow ? 28 : 26;
+    camera.updateProjectionMatrix();
+    camera.position.set(Math.sin(ang) * dist, 1.9 + pointerY * 0.1, LOOK.z + Math.cos(ang) * dist);
     camera.lookAt(LOOK);
-
     renderer.render(scene, camera);
 
-    // hotspots and leader lines
     Object.entries(anchors).forEach(([id, obj]) => {
-      obj.getWorldPosition(v);
-      v.project(camera);
-      const x = (v.x * 0.5 + 0.5) * w;
-      const y = (-v.y * 0.5 + 0.5) * h;
+      obj.getWorldPosition(tmpV).project(camera);
+      const x = (tmpV.x * 0.5 + 0.5) * w;
+      const y = (-tmpV.y * 0.5 + 0.5) * h;
       const [ox, oy] = OFFSETS[id];
       markers[id].style.transform = `translate(${(x + ox).toFixed(1)}px, ${(y + oy).toFixed(1)}px)`;
       const l = leads[id];
@@ -546,24 +622,15 @@ function build(THREE, figure) {
       l.setAttribute("y2", (y + oy).toFixed(1));
       l.classList.toggle("is-active", id === active);
     });
-
-    hudEls[0].textContent = `REC 00:${t.toFixed(2).padStart(5, "0")}`;
-    hudEls[1].textContent = `ACTION ${action}`;
-    hudEls[2].textContent = `GRIP R ${grip.toFixed(1)} N`;
   }
 
-  let pointerX = 0;
-  let pointerY = 0;
   wrap.addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
     const r = wrap.getBoundingClientRect();
     pointerX = ((e.clientX - r.left) / r.width - 0.5) * 2;
     pointerY = ((e.clientY - r.top) / r.height - 0.5) * 2;
   });
-  wrap.addEventListener("pointerleave", () => {
-    pointerX = 0;
-    pointerY = 0;
-  });
+  wrap.addEventListener("pointerleave", () => (pointerX = pointerY = 0));
 
   let running = false;
   let visible = true;
@@ -575,7 +642,8 @@ function build(THREE, figure) {
     const dt = last ? Math.min(now - last, 100) / 1000 : 0;
     last = now;
     t += dt;
-    render();
+    update(dt);
+    draw();
   }
   const start = () => {
     if (running || reduceMotion.matches || !visible || document.hidden) return;
@@ -588,17 +656,16 @@ function build(THREE, figure) {
     cancelAnimationFrame(raf);
   };
 
-  // theme changes recolour the accent pieces
   new MutationObserver(() => {
-    accent.copy(cssColor("--accent", "#c5ef6a"));
-    [M.line, M.fov, M.gaze, M.joint, gazeRing.material].forEach((m) => m.color.copy(accent));
-    grid.material.color.copy(accent);
-    Object.values(sensor).flat().forEach((m) => m.userData.hiMat?.emissive.copy(accent));
-    if (!running) render();
+    accent = cssColor("--accent", "#c5ef6a");
+    [M.led, M.line, M.joint, M.fov, M.gaze, gazeRing.material, grid.material].forEach((m) => m.color.copy(accent));
+    Object.values(sensor).flat().forEach((m) => m.userData.hi?.emissive.copy(accent));
+    if (!running) draw();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   figure.classList.add("is-3d");
-  render();
+  update(0);
+  draw();
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
     visible ? start() : stop();

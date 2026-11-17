@@ -69,3 +69,11 @@ Any static host works (Netlify, Vercel, Cloudflare Pages, GitHub Pages). Point i
 - Respects `prefers-reduced-motion`: the hero renders a still frame and other motion is switched off.
 - The hero animation pauses when off screen or when the tab is hidden.
 - Theme defaults to dark, the toggle choice is saved in `localStorage`.
+
+## 3D capture rig
+
+The Capture rig section renders a 3D scene with three.js (loaded from jsDelivr through the import map in
+`index.html`) when the section scrolls near. The figure is the rigged "X Bot" character from Mixamo, as
+shipped in the three.js examples, stored at `assets/models/xbot.glb` with only its idle animation kept and the mesh
+quantized to keep it small (about 1.2 MB). Arms, head and spine are posed every frame in `assets/js/rig3d.js`.
+If WebGL or the CDN is unavailable, the SVG drawing in the same figure is shown instead.
