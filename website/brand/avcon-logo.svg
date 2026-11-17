@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" role="img" aria-label="AVCON">
+  <rect width="1254" height="1254" fill="#0E120F"/>
+  <g transform="translate(362 265) scale(5.18)">
+    <path fill="#E5E8DC" d="M50.4 0L100 92.7H81.3L50.4 46.3L18.9 92.7H0Z"/>
+    <path fill="#C5EF6A" d="M50.4 53.7L72.9 92.7H63.7L50.4 72L36.9 92.7H27Z"/>
+  </g>
+  <text x="627" y="995" text-anchor="middle" fill="#E5E8DC" fill-opacity="0.78" font-family="Geist, Helvetica Neue, Arial, sans-serif" font-weight="700" font-size="170" letter-spacing="34">AVCON</text>
+</svg>
