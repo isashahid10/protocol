@@ -1,5 +1,6 @@
 import { initHands } from "./hands.js";
 import { initRig } from "./rig.js";
+import { initRig3d } from "./rig3d.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -9,6 +10,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 
 const field = initHands($("[data-hands]"));
 initRig($("[data-rig]"));
+initRig3d($(".station-figure"));
 
 /* ---------- Theme ---------- */
 
@@ -169,6 +171,7 @@ if (station) {
     if (!data) return;
     buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sensor === String(id))));
     hotspots.forEach((h) => h.classList.toggle("is-active", h.dataset.hs === String(id)));
+    station.dispatchEvent(new CustomEvent("sensor-select", { detail: String(id) }));
     parts.forEach((p) => p.classList.toggle("is-active", p.dataset.part === String(id)));
 
     kicker.textContent = `Sensor ${String(id).padStart(2, "0")}`;
