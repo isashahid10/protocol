@@ -32,12 +32,12 @@ website/
 The "Request sample" buttons open a dialog that asks for name, work email, company, domains needed and a
 short note on the task. It validates in the browser and has a hidden honeypot field for spam.
 
-Submissions are emailed to **outreach.pra@gmail.com** through [FormSubmit](https://formsubmit.co), a free
+Submissions are emailed to **admin@avcontech.com** through [FormSubmit](https://formsubmit.co), a free
 form-to-email service that needs no account or server. Each request arrives as a table with the visitor's name,
 email, company, domains, task and the page they sent it from. Hitting Reply answers the visitor.
 
 **One time activation:** the very first submission does not get delivered. FormSubmit instead sends an
-"Activate Form" email to outreach.pra@gmail.com. Click it once, from the live domain, and every request after that
+"Activate Form" email to admin@avcontech.com. Click it once, from the live domain, and every request after that
 is delivered. Check spam if it does not show up.
 
 Optional: after activating, FormSubmit emails you a random alias. Put it in place of the address in
@@ -54,9 +54,8 @@ Link straight to the form with `/#request-sample`.
 
 Replace these placeholders:
 
-- Domain `avcontechnologies.com` in `index.html` (canonical, Open Graph, JSON-LD), `robots.txt` and `sitemap.xml`.
-- Public contact address (footer, JSON-LD, form fallback) is admin@avcontech.com. Form submissions still go to
-  outreach.pra@gmail.com via `data-endpoint`.
+- Domain is set to `avcontech.com` in `index.html` (canonical, Open Graph, JSON-LD), `robots.txt` and `sitemap.xml`.
+- Public contact address (footer, JSON-LD, form fallback) and form submissions both use admin@avcontech.com.
 - Rig specs (in `assets/js/main.js`), stream rates, the κ ≥ 0.90 target and the numbers in the Context section,
   if they differ from your real hardware and process.
 - Figures in the Context section and the sensor specs in `assets/js/main.js` if they differ from the real hardware.
