@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://avcontechnologies.com/sitemap.xml
+Sitemap: https://avcontech.com/sitemap.xml
