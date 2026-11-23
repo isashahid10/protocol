@@ -55,7 +55,8 @@ Link straight to the form with `/#request-sample`.
 Replace these placeholders:
 
 - Domain `avcontechnologies.com` in `index.html` (canonical, Open Graph, JSON-LD), `robots.txt` and `sitemap.xml`.
-- Footer and JSON-LD use outreach.pra@gmail.com as the contact address; swap in a company address when you have one.
+- Public contact address (footer, JSON-LD, form fallback) is admin@avcontech.com. Form submissions still go to
+  outreach.pra@gmail.com via `data-endpoint`.
 - Rig specs (in `assets/js/main.js`), stream rates, the κ ≥ 0.90 target and the numbers in the Context section,
   if they differ from your real hardware and process.
 - Figures in the Context section and the sensor specs in `assets/js/main.js` if they differ from the real hardware.
